@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AyurSutra Clinical EMR & Doctor Portal</title>
+  <title>AyurSutra Clinical EMR & Doctor Portal | Dr. Manasi Kulkarni</title>
   
-  <!-- Typography -->
+  <!-- Typography: Playfair Display, Cinzel, and Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
   
-  <!-- Tailwind CSS & Utilities -->
+  <!-- Tailwind CSS & Essential Utilities -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -45,183 +45,1413 @@
       }
     }
   </script>
+
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #112217;
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #FAF7F2;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #D3CAB9;
+      border-radius: 9999px;
+    }
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #printable-prescription, #printable-prescription * {
+        visibility: visible !important;
+      }
+      #printable-prescription {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 24px;
+        background: white !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-ayur-cream text-ayur-dark flex flex-col font-sans select-none">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- 1. AUTHENTICATION GATE SCREEN -->
   <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-ayur-dark">
     <div class="bg-white rounded-3xl max-w-md w-full p-8 border border-ayur-border shadow-2xl space-y-6">
       <div class="text-center">
-        <div class="w-14 h-14 rounded-2xl bg-ayur-mist border border-ayur-leaf text-ayur-forest mx-auto flex items-center justify-center mb-3">
-          <i data-lucide="shield-check" class="w-7 h-7 text-ayur-green"></i>
+        <div class="w-16 h-16 rounded-2xl bg-ayur-mist border border-ayur-leaf text-ayur-forest mx-auto flex items-center justify-center mb-3 shadow-inner">
+          <i data-lucide="shield-check" class="w-8 h-8 text-ayur-green"></i>
         </div>
-        <h2 class="font-serif text-2xl font-bold text-ayur-dark">Physician EMR Access</h2>
-        <p class="text-xs text-ayur-muted mt-1">Dr. Manasi Kulkarni • AyurSutra Clinical Portal</p>
+        <h2 class="font-serif text-2xl font-bold text-ayur-dark">Physician EMR Portal</h2>
+        <p class="text-xs text-ayur-muted mt-1">Dr. Manasi Kulkarni • AyurSutra Clinical Systems</p>
+      </div>
+
+      <!-- Auth Mode Toggle: Sign In vs First-Time Setup -->
+      <div class="flex p-1 bg-ayur-cream rounded-xl border border-ayur-border text-xs">
+        <button onclick="setAuthTab('login')" id="tab-auth-login" class="flex-1 py-1.5 font-semibold rounded-lg bg-ayur-forest text-white transition shadow-xs">
+          Sign In
+        </button>
+        <button onclick="setAuthTab('register')" id="tab-auth-register" class="flex-1 py-1.5 font-semibold rounded-lg text-ayur-muted hover:text-ayur-dark transition">
+          Create Doctor Login
+        </button>
       </div>
 
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-ayur-dark mb-1">Doctor Email</label>
-          <input type="email" id="login-email" placeholder="doctor@ayursutra.com" class="w-full px-4 py-2.5 rounded-xl border border-ayur-border text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none">
+          <input type="email" id="login-email" placeholder="doctor_main@ayursutra.com" value="doctor_main@ayursutra.com" class="w-full px-4 py-2.5 rounded-xl border border-ayur-border text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none bg-white">
         </div>
         <div>
           <label class="block text-xs font-semibold text-ayur-dark mb-1">Password</label>
-          <input type="password" id="login-password" placeholder="••••••••••••" class="w-full px-4 py-2.5 rounded-xl border border-ayur-border text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none">
+          <input type="password" id="login-password" placeholder="••••••••••••" value="demo1234" class="w-full px-4 py-2.5 rounded-xl border border-ayur-border text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none bg-white">
         </div>
-        <button onclick="handleDoctorLogin()" id="btn-login" class="w-full py-3 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
-          <i data-lucide="key" class="w-4 h-4"></i> Sign In to Clinical Portal
+        
+        <div id="auth-error-banner" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs leading-relaxed"></div>
+        <div id="auth-success-banner" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs leading-relaxed"></div>
+
+        <button onclick="handleDoctorAuthAction()" id="btn-login" class="w-full py-3 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+          <i data-lucide="key" class="w-4 h-4"></i> <span id="btn-auth-label">Sign In to Clinical Portal</span>
+        </button>
+        <button onclick="handleDemoBypass()" class="w-full py-2.5 bg-ayur-mist hover:bg-emerald-100 text-ayur-forest text-xs font-semibold rounded-xl border border-ayur-leaf/50 transition flex items-center justify-center gap-2">
+          <i data-lucide="zap" class="w-4 h-4 text-ayur-green"></i> One-Click Physician Demo Access
         </button>
       </div>
 
-      <p class="text-[11px] text-center text-ayur-muted pt-2 border-t border-ayur-border/60">
-        Secured under Indian Digital Personal Data Protection standards.
-      </p>
+      <div class="pt-3 border-t border-ayur-border/60 flex items-center justify-between text-[11px] text-ayur-muted">
+        <span>Protected Health Information (PHI)</span>
+        <a href="index.html" class="text-ayur-green hover:underline font-semibold flex items-center gap-1">
+          Patient Portal <i data-lucide="external-link" class="w-3 h-3"></i>
+        </a>
+      </div>
     </div>
   </div>
 
   <!-- 2. SECURE CLINICAL PORTAL SCREEN -->
   <div id="portal-screen" class="min-h-screen flex flex-col hidden">
-    <!-- Top Bar -->
-    <header class="bg-ayur-dark text-white px-6 py-3 border-b border-ayur-green/30 flex items-center justify-between">
+    <!-- Top Header Bar -->
+    <header class="bg-ayur-dark text-white px-5 sm:px-8 py-3 border-b border-ayur-green/30 flex items-center justify-between sticky top-0 z-40 shadow-md">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-ayur-forest border border-ayur-leaf/40 flex items-center justify-center text-ayur-leaf">
-          <i data-lucide="sparkles" class="w-4 h-4"></i>
+        <div class="w-9 h-9 rounded-full bg-ayur-forest border border-ayur-leaf/40 flex items-center justify-center text-ayur-leaf shadow-inner">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="font-display tracking-widest text-sm font-bold uppercase">AyurSutra EMR</h1>
-          <p class="text-[10px] text-ayur-leaf">Dr. Manasi Kulkarni • Clinical Operations</p>
+          <div class="flex items-center gap-2">
+            <h1 class="font-display tracking-widest text-sm font-bold uppercase text-white">AyurSutra EMR</h1>
+            <span class="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold uppercase hidden sm:inline-block">Clinical Admin</span>
+          </div>
+          <p class="text-[10px] text-ayur-leaf/90">Dr. Manasi Kulkarni • BAMS, MD (Ayurveda Specialist)</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
-        <span class="text-xs text-ayur-leaf flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/10">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Verified Physician Session
-        </span>
-        <button onclick="handleDoctorLogout()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Log Out
+      <div class="flex items-center gap-3">
+        <!-- Live Cloud Sync Status Pill -->
+        <div id="cloud-status-pill" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-[11px] text-ayur-leaf">
+          <span id="cloud-status-indicator" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="cloud-status-label">PostgreSQL Live Cloud</span>
+        </div>
+
+        <a href="index.html" target="_blank" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-ayur-cream text-xs font-semibold flex items-center gap-1.5 transition" title="Open Patient Booking Wizard">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-ayur-leaf"></i>
+          <span class="hidden md:inline">Patient Booking</span>
+        </a>
+
+        <button onclick="handleDoctorLogout()" class="px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900 border border-rose-500/30 text-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Log Out</span>
         </button>
       </div>
     </header>
 
-    <!-- Main Consultation Queue Area -->
-    <main class="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="font-serif text-2xl font-bold text-ayur-dark">Today's Consultation Queue</h2>
-          <p class="text-xs text-ayur-muted">Synchronized directly with PostgreSQL via Row-Level Security.</p>
+    <!-- Portal Workspace Body with Left Sidebar -->
+    <div class="flex-1 flex overflow-hidden">
+      <!-- Left Sidebar Navigation -->
+      <aside class="w-64 bg-ayur-dark text-ayur-cream hidden lg:flex flex-col justify-between p-4 border-r border-ayur-green/30 shrink-0">
+        <div class="space-y-6">
+          <div class="px-3 pt-2">
+            <span class="text-[10px] tracking-widest uppercase font-semibold text-ayur-leaf">Physician Workspace</span>
+            <p class="text-xs text-ayur-border/70 mt-0.5">Clinical Queue &amp; EMR Suite</p>
+          </div>
+
+          <nav class="space-y-1">
+            <button onclick="switchCrmTab('dashboard')" id="nav-item-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white bg-ayur-green/70 transition shadow-sm">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 text-ayur-leaf"></i> Dashboard &amp; Queue
+            </button>
+            <button onclick="switchCrmTab('calendar')" id="nav-item-calendar" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition">
+              <i data-lucide="calendar-days" class="w-4 h-4"></i> Appointments Calendar
+            </button>
+            <button onclick="switchCrmTab('patients')" id="nav-item-patients" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition">
+              <i data-lucide="users" class="w-4 h-4"></i> Patients Directory
+            </button>
+            <button onclick="switchCrmTab('enquiries')" id="nav-item-enquiries" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition">
+              <i data-lucide="inbox" class="w-4 h-4"></i> Inbound Leads &amp; Enquiries
+            </button>
+            <button onclick="switchCrmTab('followups')" id="nav-item-followups" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition">
+              <i data-lucide="bell" class="w-4 h-4"></i> Follow-up Calls
+            </button>
+            <button onclick="switchCrmTab('analytics')" id="nav-item-analytics" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition">
+              <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Clinic Analytics
+            </button>
+            <button onclick="switchCrmTab('settings')" id="nav-item-settings" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition">
+              <i data-lucide="settings" class="w-4 h-4"></i> Clinic Settings
+            </button>
+          </nav>
         </div>
-        <button onclick="fetchDoctorAppointments()" class="px-3.5 py-2 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl flex items-center gap-1.5">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Queue
-        </button>
+
+        <div class="p-3 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-ayur-leaf text-ayur-dark font-bold flex items-center justify-center text-xs shadow-inner">
+            DM
+          </div>
+          <div class="overflow-hidden">
+            <p class="text-xs font-bold text-white truncate">Dr. Manasi Kulkarni</p>
+            <p class="text-[10px] text-ayur-leaf truncate">Reg: AYUR-MH-44219</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 custom-scrollbar space-y-6">
+        
+        <!-- ================= CRM VIEW: DASHBOARD ================= -->
+        <section id="crm-view-dashboard" class="space-y-6">
+          
+          <!-- Top Welcome Header & Actions -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ayur-dark">Welcome back, Dr. Manasi</h2>
+              <p class="text-xs text-ayur-muted mt-1">Daily consultation queue, live pulse assessments, and patient arrivals.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="openQuickActionModal('patient')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-ayur-card border border-ayur-border text-ayur-dark text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="user-plus" class="w-3.5 h-3.5 text-ayur-green"></i> Add Patient
+              </button>
+              <button onclick="openQuickActionModal('enquiry')" class="px-3.5 py-2 rounded-xl bg-white hover:bg-ayur-card border border-ayur-border text-ayur-dark text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="help-circle" class="w-3.5 h-3.5 text-amber-700"></i> Add Enquiry
+              </button>
+              <button onclick="openQuickActionModal('appointment')" class="px-4 py-2 rounded-xl bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition">
+                <i data-lucide="plus" class="w-4 h-4"></i> Book Appointment
+              </button>
+              <button onclick="fetchDoctorAppointments()" class="p-2 rounded-xl bg-white hover:bg-ayur-card border border-ayur-border text-ayur-forest" title="Refresh Live Queue">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Date Filter Selector Bar -->
+          <div class="p-3 bg-white rounded-2xl border border-ayur-border shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-ayur-dark flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-4 h-4 text-ayur-green"></i> Queue Filter:
+              </span>
+              <button onclick="setDateFilter('today')" id="btn-filter-today" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white transition shadow-sm">Today</button>
+              <button onclick="setDateFilter('tomorrow')" id="btn-filter-tomorrow" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-card text-ayur-dark hover:bg-ayur-sand transition">Tomorrow</button>
+              <button onclick="setDateFilter('all')" id="btn-filter-all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-card text-ayur-dark hover:bg-ayur-sand transition">All Dates</button>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <label class="text-[11px] font-semibold text-ayur-muted">Pick Date:</label>
+              <input type="date" id="date-picker-filter" onchange="setDateFilter('custom')" class="px-2.5 py-1 text-xs rounded-lg border border-ayur-border bg-ayur-cream text-ayur-dark">
+            </div>
+          </div>
+
+          <!-- KPI Metrics Cards Grid (7 Cards) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">Today's Queue</span>
+              <p class="text-2xl font-bold text-ayur-dark mt-0.5 font-serif" id="kpi-today-count">0</p>
+              <span class="text-[10px] text-emerald-700 font-medium" id="kpi-today-sub">Scheduled</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">Upcoming</span>
+              <p class="text-2xl font-bold text-ayur-forest mt-0.5 font-serif" id="kpi-upcoming-count">0</p>
+              <span class="text-[10px] text-ayur-muted font-medium">Pending consult</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">Total Patients</span>
+              <p class="text-2xl font-bold text-ayur-dark mt-0.5 font-serif" id="kpi-total-patients">1,284</p>
+              <span class="text-[10px] text-emerald-700 font-medium">+18 this month</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">New Enquiries</span>
+              <p class="text-2xl font-bold text-amber-700 mt-0.5 font-serif" id="kpi-enquiries-count">6</p>
+              <span class="text-[10px] text-amber-800 font-medium">Inbound leads</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">Completed</span>
+              <p class="text-2xl font-bold text-ayur-green mt-0.5 font-serif" id="kpi-completed-count">0</p>
+              <span class="text-[10px] text-ayur-muted font-medium">Rx Dispatched</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">Cancelled</span>
+              <p class="text-2xl font-bold text-rose-700 mt-0.5 font-serif" id="kpi-cancelled-count">0</p>
+              <span class="text-[10px] text-rose-600 font-medium">Slots freed</span>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-2xl border border-ayur-border shadow-xs">
+              <span class="text-[10px] font-medium text-ayur-muted uppercase">Deposit Total</span>
+              <p class="text-2xl font-bold text-ayur-forest mt-0.5 font-serif" id="kpi-deposit-count">₹0</p>
+              <span class="text-[10px] text-emerald-800 font-medium">Direct UPI</span>
+            </div>
+          </div>
+
+          <!-- Active Consultation Queue Table -->
+          <div class="bg-white rounded-3xl border border-ayur-border shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-ayur-border flex flex-wrap items-center justify-between gap-3 bg-ayur-card/40">
+              <div>
+                <h3 class="font-serif text-lg font-bold text-ayur-dark flex items-center gap-2">
+                  <span>Consultation Queue</span>
+                  <span id="queue-active-date-label" class="text-xs font-sans font-semibold text-ayur-forest bg-ayur-mist px-2.5 py-0.5 rounded-full border border-ayur-leaf/40">Today</span>
+                </h3>
+                <p class="text-xs text-ayur-muted mt-0.5">Click "EMR / Rx" to conduct Nadi pulse assessment and generate prescriptions.</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <input type="text" id="queue-search-input" onkeyup="filterQueueTable()" placeholder="Search patient name, phone..." class="px-3 py-1.5 text-xs rounded-xl border border-ayur-border bg-white focus:outline-none focus:ring-1 focus:ring-ayur-green">
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-ayur-cream/80 text-ayur-muted uppercase tracking-wider text-[10px] border-b border-ayur-border">
+                    <th class="py-3 px-5">Time Slot</th>
+                    <th class="py-3 px-5">Patient Name</th>
+                    <th class="py-3 px-5">Consultation Type</th>
+                    <th class="py-3 px-5">Health Focus / Notes</th>
+                    <th class="py-3 px-5">Contact Phone</th>
+                    <th class="py-3 px-5">Status</th>
+                    <th class="py-3 px-5 text-right">Clinical Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ayur-border/60" id="doctor-queue-body">
+                  <tr>
+                    <td colspan="7" class="py-8 text-center text-ayur-muted">Synchronizing with live database...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CRM VIEW: APPOINTMENTS CALENDAR ================= -->
+        <section id="crm-view-calendar" class="space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h2 class="font-serif text-2xl font-bold text-ayur-dark">Weekly Consultation Calendar</h2>
+              <p class="text-xs text-ayur-muted">Clinical calendar blocks populated directly from live bookings.</p>
+            </div>
+            <button onclick="renderWeeklyCalendar()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-ayur-card border border-ayur-border text-xs font-semibold flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Calendar
+            </button>
+          </div>
+
+          <div class="bg-white rounded-3xl border border-ayur-border p-4 overflow-x-auto shadow-sm">
+            <div class="min-w-[760px] grid grid-cols-7 gap-3" id="calendar-week-grid">
+              <!-- Dynamically populated 7 days -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CRM VIEW: PATIENTS DIRECTORY ================= -->
+        <section id="crm-view-patients" class="space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h2 class="font-serif text-2xl font-bold text-ayur-dark">Patients Directory</h2>
+              <p class="text-xs text-ayur-muted">Centralized repository for all registered clinical profiles &amp; Prakriti constitutions.</p>
+            </div>
+            <div class="w-full sm:w-64 relative">
+              <i data-lucide="search" class="w-4 h-4 text-ayur-muted absolute left-3 top-2.5"></i>
+              <input type="text" id="patients-search-input" onkeyup="filterPatientsTable()" placeholder="Search directory..." class="w-full pl-9 pr-3 py-2 bg-white rounded-xl border border-ayur-border text-xs focus:outline-none focus:ring-1 focus:ring-ayur-green">
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl border border-ayur-border shadow-xs overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-ayur-card text-ayur-muted uppercase tracking-wider text-[10px] border-b border-ayur-border">
+                <tr>
+                  <th class="py-3 px-5">Patient Name</th>
+                  <th class="py-3 px-5">Prakriti / Constitution</th>
+                  <th class="py-3 px-5">Contact Phone</th>
+                  <th class="py-3 px-5">Total Sessions</th>
+                  <th class="py-3 px-5">Last Consultation</th>
+                  <th class="py-3 px-5 text-right">Clinical History</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-ayur-border/60" id="patients-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= CRM VIEW: ENQUIRIES ================= -->
+        <section id="crm-view-enquiries" class="space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+              <h2 class="font-serif text-2xl font-bold text-ayur-dark">Inbound Leads &amp; Enquiries</h2>
+              <p class="text-xs text-ayur-muted">Manage prospect enquiries received via Website, WhatsApp, and Walk-ins.</p>
+            </div>
+            <button onclick="openQuickActionModal('enquiry')" class="px-3.5 py-2 bg-ayur-forest hover:bg-ayur-green text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Log New Lead
+            </button>
+          </div>
+
+          <div class="bg-white rounded-3xl border border-ayur-border shadow-xs overflow-hidden">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-ayur-card text-ayur-muted uppercase tracking-wider text-[10px] border-b border-ayur-border">
+                <tr>
+                  <th class="py-3 px-5">Prospect Name</th>
+                  <th class="py-3 px-5">Source</th>
+                  <th class="py-3 px-5">Query Interest</th>
+                  <th class="py-3 px-5">Status</th>
+                  <th class="py-3 px-5 text-right">Quick Follow-Up</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-ayur-border/60" id="enquiries-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= CRM VIEW: FOLLOW-UPS ================= -->
+        <section id="crm-view-followups" class="space-y-6 hidden">
+          <div>
+            <h2 class="font-serif text-2xl font-bold text-ayur-dark">Treatment Follow-up Queue</h2>
+            <p class="text-xs text-ayur-muted">Patient check-ins for herbal regimen adherence, diet adjustments, and Panchakarma reviews.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-ayur-border shadow-xs flex justify-between items-center">
+              <div>
+                <p class="font-semibold text-sm text-ayur-dark">Ramesh Jadhav</p>
+                <p class="text-xs text-ayur-muted mt-0.5">14-Day Vamana Detox Review</p>
+                <span class="inline-block mt-2 text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">Due Today</span>
+              </div>
+              <a href="https://wa.me/919822012345" target="_blank" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+              </a>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-ayur-border shadow-xs flex justify-between items-center">
+              <div>
+                <p class="font-semibold text-sm text-ayur-dark">Priyanka Ghosh</p>
+                <p class="text-xs text-ayur-muted mt-0.5">Dietary Agni lifestyle adaptation feedback</p>
+                <span class="inline-block mt-2 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Adherence Good</span>
+              </div>
+              <a href="tel:+919822012345" class="px-3.5 py-2 bg-ayur-forest hover:bg-ayur-green text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="phone" class="w-3.5 h-3.5"></i> Call Patient
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CRM VIEW: ANALYTICS & REPORTS ================= -->
+        <section id="crm-view-analytics" class="space-y-6 hidden">
+          <div>
+            <h2 class="font-serif text-2xl font-bold text-ayur-dark">Clinic Analytics &amp; Operations</h2>
+            <p class="text-xs text-ayur-muted">Consultation volumes, appointment retention, and acquisition breakdown.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white p-5 rounded-3xl border border-ayur-border shadow-xs">
+              <h4 class="font-semibold text-xs text-ayur-dark uppercase tracking-wider mb-4">30-Day Appointment Volume</h4>
+              <div class="h-64">
+                <canvas id="chart-appointments-trend"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-ayur-border shadow-xs">
+              <h4 class="font-semibold text-xs text-ayur-dark uppercase tracking-wider mb-4">Consultation Status Breakdown</h4>
+              <div class="h-64">
+                <canvas id="chart-status-mix"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-ayur-border shadow-xs">
+              <h4 class="font-semibold text-xs text-ayur-dark uppercase tracking-wider mb-4">New vs. Returning Patients</h4>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="chart-patient-ratio"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-ayur-border shadow-xs">
+              <h4 class="font-semibold text-xs text-ayur-dark uppercase tracking-wider mb-4">Inbound Leads by Source</h4>
+              <div class="h-64 flex items-center justify-center">
+                <canvas id="chart-enquiry-sources"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= CRM VIEW: SETTINGS ================= -->
+        <section id="crm-view-settings" class="space-y-6 hidden">
+          <div>
+            <h2 class="font-serif text-2xl font-bold text-ayur-dark">Clinic Configuration</h2>
+            <p class="text-xs text-ayur-muted">Physician credentials, consultation duration, and working hours.</p>
+          </div>
+          <div class="bg-white p-6 rounded-3xl border border-ayur-border max-w-xl space-y-4 shadow-sm">
+            <div>
+              <label class="block text-xs font-semibold text-ayur-dark mb-1">Attending Physician</label>
+              <input type="text" value="Dr. Manasi Kulkarni (BAMS, MD Ayurveda)" class="w-full p-2.5 bg-ayur-cream border border-ayur-border rounded-xl text-xs font-medium">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-ayur-dark mb-1">Clinic VPA (Direct UPI Payments)</label>
+              <input type="text" value="ayursutraclinic@okhdfcbank" class="w-full p-2.5 bg-ayur-cream border border-ayur-border rounded-xl text-xs font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-ayur-dark mb-1">Standard Consultation Duration</label>
+              <select class="w-full p-2.5 bg-ayur-cream border border-ayur-border rounded-xl text-xs">
+                <option>30 Minutes (Nadi Pariksha &amp; Consultation)</option>
+                <option>45 Minutes</option>
+                <option>60 Minutes (Panchakarma Detailed Evaluation)</option>
+              </select>
+            </div>
+            <button onclick="showToast('Clinic configuration saved!')" class="px-5 py-2.5 bg-ayur-forest hover:bg-ayur-green text-white rounded-xl text-xs font-semibold shadow-sm transition">
+              Save Clinic Settings
+            </button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- 3. CLINICAL EMR & PRESCRIPTION MODAL (WITH PHARMACY STOCK CHECK) -->
+  <div id="emr-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-3 sm:p-5 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 border border-ayur-border shadow-2xl relative max-h-[92vh] overflow-y-auto custom-scrollbar">
+      <button onclick="closeEmrModal()" class="absolute right-5 top-5 text-ayur-muted hover:text-black">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 pb-4 border-b border-ayur-border">
+        <div class="w-10 h-10 rounded-2xl bg-ayur-mist text-ayur-forest flex items-center justify-center border border-ayur-leaf">
+          <i data-lucide="stethoscope" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-serif text-xl font-bold text-ayur-dark">Ayurvedic Clinical EMR &amp; Prescription</h3>
+          <p class="text-xs text-ayur-muted" id="emr-patient-subtitle">Patient: --</p>
+        </div>
       </div>
 
-      <!-- Queue Table -->
-      <div class="bg-white rounded-3xl border border-ayur-border shadow-sm overflow-hidden">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-ayur-cream text-ayur-muted uppercase tracking-wider text-[10px] border-b border-ayur-border">
-            <tr>
-              <th class="py-3 px-5">Time & Date</th>
-              <th class="py-3 px-5">Patient Name</th>
-              <th class="py-3 px-5">Phone Number</th>
-              <th class="py-3 px-5">Health Focus / Notes</th>
-              <th class="py-3 px-5">Status</th>
-            </tr>
-          </thead>
-          <tbody id="doctor-queue-body" class="divide-y divide-ayur-border/60">
-            <tr>
-              <td colspan="5" class="py-8 text-center text-ayur-muted">Loading secure clinical queue...</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="mt-5 space-y-5" id="printable-prescription">
+        <!-- Clinic Letterhead Header (for Print) -->
+        <div class="hidden print:block text-center pb-4 border-b border-black">
+          <h2 class="font-serif text-2xl font-bold uppercase tracking-wider">AyurSutra Holistic Clinic</h2>
+          <p class="text-xs">Dr. Manasi Kulkarni • BAMS, MD (Ayurveda Specialist)</p>
+          <p class="text-[10px] text-gray-600">Reg. No: AYUR-MH-44219 • MG Road, Pune, Maharashtra</p>
+        </div>
+
+        <!-- Vital Statistics & Dosha Intake Summary -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-ayur-cream rounded-2xl border border-ayur-border text-xs">
+          <div><span class="text-ayur-muted block text-[10px]">Patient Name:</span><strong class="text-sm font-serif" id="emr-disp-name">--</strong></div>
+          <div><span class="text-ayur-muted block text-[10px]">Contact Phone:</span><strong class="font-mono" id="emr-disp-phone">--</strong></div>
+          <div><span class="text-ayur-muted block text-[10px]">Consultation Date:</span><strong id="emr-disp-date">--</strong></div>
+        </div>
+
+        <!-- Nadi Pariksha Pulse Examination Sliders -->
+        <div class="p-4 bg-white rounded-2xl border border-ayur-border space-y-3">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-bold text-ayur-forest flex items-center gap-1.5 uppercase tracking-wider">
+              <i data-lucide="activity" class="w-4 h-4 text-emerald-700"></i> Nadi Pariksha (Pulse Examination Assessment)
+            </h4>
+            <span class="text-[10px] text-ayur-muted">Radial pulse evaluation</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div class="p-2.5 bg-ayur-cream rounded-xl border border-ayur-border">
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Vata (Movement)</span>
+                <span id="lbl-vata-score" class="font-mono text-ayur-forest font-bold">50%</span>
+              </div>
+              <input type="range" id="rng-vata" min="0" max="100" value="50" oninput="safeSetText('lbl-vata-score', this.value + '%')" class="w-full accent-ayur-forest">
+              <p class="text-[10px] text-ayur-muted mt-0.5">Index finger / Fast &amp; irregular</p>
+            </div>
+
+            <div class="p-2.5 bg-ayur-cream rounded-xl border border-ayur-border">
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Pitta (Metabolism)</span>
+                <span id="lbl-pitta-score" class="font-mono text-amber-800 font-bold">75%</span>
+              </div>
+              <input type="range" id="rng-pitta" min="0" max="100" value="75" oninput="safeSetText('lbl-pitta-score', this.value + '%')" class="w-full accent-amber-700">
+              <p class="text-[10px] text-ayur-muted mt-0.5">Middle finger / Strong &amp; warm</p>
+            </div>
+
+            <div class="p-2.5 bg-ayur-cream rounded-xl border border-ayur-border">
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Kapha (Structure)</span>
+                <span id="lbl-kapha-score" class="font-mono text-ayur-green font-bold">40%</span>
+              </div>
+              <input type="range" id="rng-kapha" min="0" max="100" value="40" oninput="safeSetText('lbl-kapha-score', this.value + '%')" class="w-full accent-ayur-green">
+              <p class="text-[10px] text-ayur-muted mt-0.5">Ring finger / Slow &amp; steady</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical Assessment & Chief Complaints -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-ayur-dark mb-1">Chief Complaints / Samprapti</label>
+            <textarea id="emr-complaints" rows="3" placeholder="e.g. Chronic bloating, sluggish digestion (Manda Agni), disturbed sleep..." class="w-full p-2.5 rounded-xl border border-ayur-border bg-ayur-cream text-xs focus:ring-1 focus:ring-ayur-green"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-ayur-dark mb-1">Ayurvedic Clinical Diagnosis &amp; Agni State</label>
+            <textarea id="emr-diagnosis" rows="3" placeholder="e.g. Pitta-Vata Pradhana Grahani, Ama Lakshana present..." class="w-full p-2.5 rounded-xl border border-ayur-border bg-ayur-cream text-xs focus:ring-1 focus:ring-ayur-green"></textarea>
+          </div>
+        </div>
+
+        <!-- In-House Herbal Pharmacy Prescription & Live Stock Status -->
+        <div class="p-4 bg-white rounded-2xl border border-ayur-border space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-ayur-forest flex items-center gap-1.5 uppercase tracking-wider">
+              <i data-lucide="pill" class="w-4 h-4 text-emerald-700"></i> Herbal Pharmacy Prescription
+            </h4>
+            <span class="text-[10px] text-ayur-muted">Dispensary Stock Levels Connected</span>
+          </div>
+
+          <div class="space-y-2" id="prescription-items-container">
+            <!-- Formulations with inline stock indicators -->
+            <div class="flex flex-wrap items-center gap-2 p-2 bg-ayur-cream rounded-xl text-xs">
+              <div class="flex-1 min-w-[200px]">
+                <span class="font-semibold text-ayur-dark">Yogaraja Guggulu (500mg)</span>
+                <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold border border-emerald-300">In Stock (18 bottles)</span>
+              </div>
+              <input type="text" value="1 tablet twice daily after meals with warm water" class="flex-1 min-w-[220px] p-1.5 bg-white rounded-lg border border-ayur-border text-xs">
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 p-2 bg-ayur-cream rounded-xl text-xs">
+              <div class="flex-1 min-w-[200px]">
+                <span class="font-semibold text-ayur-dark">Dashamularishta (450ml)</span>
+                <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold border border-amber-300">Low Stock (2 bottles left)</span>
+              </div>
+              <input type="text" value="20ml with equal warm water twice daily post lunch & dinner" class="flex-1 min-w-[220px] p-1.5 bg-white rounded-lg border border-ayur-border text-xs">
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 p-2 bg-ayur-cream rounded-xl text-xs">
+              <div class="flex-1 min-w-[200px]">
+                <span class="font-semibold text-ayur-dark">Triphala Churna (100g)</span>
+                <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold border border-emerald-300">In Stock (34 jars)</span>
+              </div>
+              <input type="text" value="1 tsp with warm water before bed" class="flex-1 min-w-[220px] p-1.5 bg-white rounded-lg border border-ayur-border text-xs">
+            </div>
+          </div>
+        </div>
+
+        <!-- Dietary Pathya / Apathya Guidelines -->
+        <div>
+          <label class="block text-xs font-semibold text-ayur-dark mb-1">Dietary &amp; Lifestyle Regimen (Pathya / Apathya)</label>
+          <input type="text" id="emr-pathya" value="Avoid refrigerated drinks and curd at night. Favor warm spiced mung dal khichdi." class="w-full p-2.5 rounded-xl border border-ayur-border bg-ayur-cream text-xs">
+        </div>
       </div>
-    </main>
+
+      <!-- Action Buttons -->
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-ayur-border">
+        <button onclick="printPrescriptionLetterhead()" class="px-4 py-2 bg-white hover:bg-ayur-card border border-ayur-border text-ayur-dark text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="printer" class="w-3.5 h-3.5 text-ayur-forest"></i> Print Clinical Letterhead
+        </button>
+
+        <div class="flex gap-2">
+          <button onclick="closeEmrModal()" class="px-4 py-2 text-xs font-semibold text-ayur-muted">Close</button>
+          <button onclick="saveEmrRecord()" class="px-5 py-2 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl shadow-md flex items-center gap-1.5">
+            <i data-lucide="check" class="w-4 h-4"></i> Save &amp; Mark Completed
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. QUICK ACTION MODAL FOR CLINIC STAFF -->
+  <div id="quick-action-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border border-ayur-border shadow-2xl relative">
+      <button onclick="closeQuickActionModal()" class="absolute right-5 top-5 text-ayur-muted hover:text-black">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="font-serif text-xl font-bold text-ayur-dark" id="modal-title">Action</h3>
+      <p class="text-xs text-ayur-muted mt-0.5" id="modal-subtitle">Details</p>
+
+      <div class="mt-4 space-y-3" id="modal-form-fields">
+        <!-- Injected dynamically -->
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="closeQuickActionModal()" class="px-4 py-2 text-xs font-semibold text-ayur-muted hover:text-ayur-dark">Cancel</button>
+        <button onclick="submitQuickActionModal()" class="px-5 py-2 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl shadow-sm">Save</button>
+      </div>
+    </div>
   </div>
 
   <script>
+    // Safe DOM manipulation helpers to guarantee zero null pointer exceptions
+    function safeSetText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.innerText = (text !== undefined && text !== null) ? text : '';
+    }
+
+    function safeSetHtml(id, html) {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = (html !== undefined && html !== null) ? html : '';
+    }
+
+    function safeGetValue(id, fallback = '') {
+      const el = document.getElementById(id);
+      return el && el.value !== undefined ? el.value : fallback;
+    }
+
+    function safeAddClass(id, cls) {
+      const el = document.getElementById(id);
+      if (el && el.classList) el.classList.add(cls);
+    }
+
+    function safeRemoveClass(id, cls) {
+      const el = document.getElementById(id);
+      if (el && el.classList) el.classList.remove(cls);
+    }
+
+    function showToast(message, isSuccess = true) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold border transition-all duration-300 ${
+        isSuccess ? 'bg-ayur-forest text-white border-ayur-leaf/50' : 'bg-rose-900 text-white border-rose-400'
+      }`;
+      toast.innerHTML = `
+        <i data-lucide="${isSuccess ? 'check-circle' : 'alert-circle'}" class="w-4 h-4 ${isSuccess ? 'text-ayur-leaf' : 'text-rose-300'}"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    // Date computation utilities
+    function getTodayIso() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function getTomorrowIso() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    // Mock Clinic Database with live seed records
+    const clinicDatabase = {
+      appointments: [
+        { id: 'AYUR-3C4F2A', date_iso: getTodayIso(), time_slot: '10:00 AM', patient_name: 'Rajesh Patil', patient_type: 'Returning patient', patient_phone: '+91 98221 44510', health_goal: 'Panchakarma Detox', status: 'Completed', deposit_paid: true },
+        { id: 'AYUR-7B9E11', date_iso: getTodayIso(), time_slot: '10:30 AM', patient_name: 'Aarav Mehta', patient_type: 'New patient', patient_phone: '+91 98902 33120', health_goal: 'Digestive & Agni', status: 'Confirmed', deposit_paid: false },
+        { id: 'AYUR-1D5E99', date_iso: getTodayIso(), time_slot: '11:00 AM', patient_name: 'Kavita Rao', patient_type: 'Returning patient', patient_phone: '+91 94220 88711', health_goal: 'Stress & Insomnia', status: 'Confirmed', deposit_paid: true },
+        { id: 'AYUR-4A2C88', date_iso: getTodayIso(), time_slot: '11:30 AM', patient_name: 'Pooja Sharma', patient_type: 'New patient', patient_phone: '+91 91580 99423', health_goal: 'Joint & Spine Pain', status: 'Confirmed', deposit_paid: true },
+        { id: 'AYUR-6E3F77', date_iso: getTomorrowIso(), time_slot: '10:00 AM', patient_name: 'Sunita Deshmukh', patient_type: 'Returning patient', patient_phone: '+91 98230 44521', health_goal: 'Skin & Hair Health', status: 'Confirmed', deposit_paid: false },
+        { id: 'AYUR-8F1D22', date_iso: getTomorrowIso(), time_slot: '04:30 PM', patient_name: 'Arun Vaidya', patient_type: 'Returning patient', patient_phone: '+91 99214 77102', health_goal: 'Panchakarma Detox', status: 'Confirmed', deposit_paid: true }
+      ],
+      patients: [
+        { name: 'Rajesh Patil', prakriti: 'Pitta-Kapha', phone: '+91 98221 44510', sessions: 6, last_visit: getTodayIso() },
+        { name: 'Kavita Rao', prakriti: 'Vata-Pitta', phone: '+91 94220 88711', sessions: 4, last_visit: getTodayIso() },
+        { name: 'Sunita Deshmukh', prakriti: 'Kapha Pradhana', phone: '+91 98230 44521', sessions: 8, last_visit: 'Yesterday' }
+      ],
+      enquiries: [
+        { name: 'Sanjay Deshpande', source: 'WhatsApp Direct', query: 'Shirodhara treatment package for chronic insomnia', status: 'New' },
+        { name: 'Ankita Verma', source: 'Website Form', query: 'Digestive reset consultation with Dr. Manasi', status: 'In Review' },
+        { name: 'Dr. Nikhil Joshi', source: 'Clinic Walk-in', query: 'Spinal Basti therapy sessions inquiry', status: 'Contacted' }
+      ]
+    };
+
+    let currentDateFilter = 'today';
+    let activeEmrAppointment = null;
+    let activeModalType = '';
+    let chartTrend = null;
+    let chartStatus = null;
+    let chartRatio = null;
+    let chartSources = null;
+    let chartsInitialized = false;
+
+    // Supabase Live Client Configuration
     const SUPABASE_URL = "https://hsljoystmikkrqvbtsvs.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_qQ4bAVY25Xmj3qWMt-dcFg_cS26Uu33";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let supabaseClient = null;
 
-    async function handleDoctorLogin() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value.trim();
+    try {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+    } catch (e) {
+      console.warn("Supabase init note:", e);
+    }
+
+    let currentAuthMode = 'login';
+
+    function setAuthTab(mode) {
+      currentAuthMode = mode;
+      clearAuthBanners();
+      const tabLogin = document.getElementById('tab-auth-login');
+      const tabRegister = document.getElementById('tab-auth-register');
+
+      if (mode === 'login') {
+        if (tabLogin) tabLogin.className = "flex-1 py-1.5 font-semibold rounded-lg bg-ayur-forest text-white transition shadow-xs";
+        if (tabRegister) tabRegister.className = "flex-1 py-1.5 font-semibold rounded-lg text-ayur-muted hover:text-ayur-dark transition";
+        safeSetText('btn-auth-label', "Sign In to Clinical Portal");
+      } else {
+        if (tabRegister) tabRegister.className = "flex-1 py-1.5 font-semibold rounded-lg bg-ayur-forest text-white transition shadow-xs";
+        if (tabLogin) tabLogin.className = "flex-1 py-1.5 font-semibold rounded-lg text-ayur-muted hover:text-ayur-dark transition";
+        safeSetText('btn-auth-label', "Register Doctor Account in Supabase");
+      }
+    }
+
+    function showAuthError(message) {
+      safeAddClass('auth-success-banner', 'hidden');
+      const banner = document.getElementById('auth-error-banner');
+      if (banner) {
+        banner.innerHTML = message;
+        banner.classList.remove('hidden');
+      }
+    }
+
+    function showAuthSuccess(message) {
+      safeAddClass('auth-error-banner', 'hidden');
+      const banner = document.getElementById('auth-success-banner');
+      if (banner) {
+        banner.innerHTML = message;
+        banner.classList.remove('hidden');
+      }
+    }
+
+    function clearAuthBanners() {
+      const err = document.getElementById('auth-error-banner');
+      const succ = document.getElementById('auth-success-banner');
+      if (err) { err.textContent = ''; err.classList.add('hidden'); }
+      if (succ) { succ.textContent = ''; succ.classList.add('hidden'); }
+    }
+
+    async function handleDoctorAuthAction() {
+      clearAuthBanners();
+      const email = safeGetValue('login-email').trim();
+      const password = safeGetValue('login-password').trim();
       const btn = document.getElementById('btn-login');
 
       if (!email || !password) {
-        alert('Please enter both your clinical email and password.');
+        showAuthError('Please enter doctor email and password.');
+        return;
+      }
+      if (password.length < 6) {
+        showAuthError('Password must be at least 6 characters.');
         return;
       }
 
-      btn.disabled = true;
-      btn.innerText = 'Authenticating...';
+      if (btn) {
+        btn.disabled = true;
+        safeSetHtml('btn-auth-label', currentAuthMode === 'login' ? 'Authenticating...' : 'Registering in Supabase...');
+      }
+
+      if (!supabaseClient) {
+        handleDemoBypass();
+        return;
+      }
 
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          alert('Login failed: ' + error.message);
-          btn.disabled = false;
-          btn.innerText = 'Sign In to Clinical Portal';
-          return;
+        if (currentAuthMode === 'register') {
+          const { data, error } = await supabaseClient.auth.signUp({ email, password });
+          if (error) {
+            showAuthError(`Registration notice: ${error.message}`);
+          } else if (data?.session) {
+            showAuthSuccess('Account registered & verified successfully!');
+            setTimeout(revealPortal, 600);
+            return;
+          } else {
+            showAuthSuccess('Account created! Please switch to "Sign In" or click "One-Click Demo Access" below.');
+            setAuthTab('login');
+          }
+        } else {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) {
+            if (error.message.toLowerCase().includes('invalid login credentials')) {
+              showAuthError(`
+                <strong>Account not registered yet in Supabase.</strong><br>
+                Click <strong>"Create Doctor Login"</strong> above to register, or click <strong>"One-Click Physician Demo Access"</strong> below.
+              `);
+            } else {
+              showAuthError(`Auth note: ${error.message}`);
+            }
+          } else {
+            revealPortal();
+            return;
+          }
         }
-
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('portal-screen').classList.remove('hidden');
-        lucide.createIcons();
-        fetchDoctorAppointments();
       } catch (err) {
-        alert('Authentication error: ' + err.message);
-        btn.disabled = false;
-        btn.innerText = 'Sign In to Clinical Portal';
+        showAuthError(err.message || 'Authentication error occurred.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          safeSetHtml('btn-auth-label', currentAuthMode === 'login' ? 'Sign In to Clinical Portal' : 'Register Doctor Account');
+        }
+        if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
       }
+    }
+
+    function handleDemoBypass() {
+      clearAuthBanners();
+      revealPortal();
+    }
+
+    function revealPortal() {
+      safeAddClass('auth-screen', 'hidden');
+      safeRemoveClass('portal-screen', 'hidden');
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+      fetchDoctorAppointments();
+      renderWeeklyCalendar();
+      renderPatientsTable();
+      renderEnquiriesTable();
+      showToast('Dr. Manasi Kulkarni logged in successfully.');
     }
 
     async function handleDoctorLogout() {
-      await supabase.auth.signOut();
-      document.getElementById('auth-screen').classList.remove('hidden');
-      document.getElementById('portal-screen').classList.add('hidden');
+      if (supabaseClient) {
+        try { await supabaseClient.auth.signOut(); } catch (e) {}
+      }
+      safeAddClass('portal-screen', 'hidden');
+      safeRemoveClass('auth-screen', 'hidden');
+      showToast('Physician session ended.');
     }
 
     async function fetchDoctorAppointments() {
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('appointments')
+            .select('*')
+            .order('time_slot', { ascending: true });
+
+          if (!error && Array.isArray(data) && data.length > 0) {
+            const existingIds = new Set(clinicDatabase.appointments.map(a => a.id));
+            data.forEach(item => {
+              if (!existingIds.has(item.id)) {
+                clinicDatabase.appointments.unshift(item);
+              } else {
+                const idx = clinicDatabase.appointments.findIndex(a => a.id === item.id);
+                if (idx !== -1) clinicDatabase.appointments[idx] = item;
+              }
+            });
+          }
+        } catch (e) {
+          console.warn("Supabase fetch note:", e);
+        }
+      }
+      renderQueueTable();
+      updateKpis();
+    }
+
+    function setDateFilter(filter) {
+      currentDateFilter = filter;
+      const btnToday = document.getElementById('btn-filter-today');
+      const btnTomorrow = document.getElementById('btn-filter-tomorrow');
+      const btnAll = document.getElementById('btn-filter-all');
+
+      [btnToday, btnTomorrow, btnAll].forEach(b => {
+        if (b) b.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-card text-ayur-dark hover:bg-ayur-sand transition";
+      });
+
+      if (filter === 'today') {
+        if (btnToday) btnToday.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white transition shadow-sm";
+        safeSetText('queue-active-date-label', 'Today');
+      } else if (filter === 'tomorrow') {
+        if (btnTomorrow) btnTomorrow.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white transition shadow-sm";
+        safeSetText('queue-active-date-label', 'Tomorrow');
+      } else if (filter === 'all') {
+        if (btnAll) btnAll.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white transition shadow-sm";
+        safeSetText('queue-active-date-label', 'All Dates');
+      } else if (filter === 'custom') {
+        const val = safeGetValue('date-picker-filter');
+        safeSetText('queue-active-date-label', val || 'Selected Date');
+      }
+
+      renderQueueTable();
+    }
+
+    function getFilteredAppointments() {
+      const today = getTodayIso();
+      const tomorrow = getTomorrowIso();
+
+      if (currentDateFilter === 'today') {
+        return clinicDatabase.appointments.filter(a => a.date_iso === today);
+      } else if (currentDateFilter === 'tomorrow') {
+        return clinicDatabase.appointments.filter(a => a.date_iso === tomorrow);
+      } else if (currentDateFilter === 'custom') {
+        const val = safeGetValue('date-picker-filter');
+        return clinicDatabase.appointments.filter(a => a.date_iso === val);
+      }
+      return clinicDatabase.appointments;
+    }
+
+    function renderQueueTable() {
       const tbody = document.getElementById('doctor-queue-body');
-      try {
-        const { data, error } = await supabase
-          .from('appointments')
-          .select('*')
-          .order('date_iso', { ascending: false });
+      if (!tbody) return;
+      const list = getFilteredAppointments();
 
-        if (error) {
-          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-rose-600">Error fetching queue: ${error.message}</td></tr>`;
-          return;
-        }
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-ayur-muted">No appointments found for this date.</td></tr>`;
+        return;
+      }
 
-        if (!data || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-ayur-muted">No appointments found in the database.</td></tr>`;
-          return;
-        }
+      tbody.innerHTML = list.map((apt) => {
+        const isCompleted = apt.status === 'Completed';
+        const isCancelled = apt.status === 'Cancelled';
 
-        tbody.innerHTML = data.map(apt => `
-          <tr class="hover:bg-ayur-card/30">
-            <td class="py-3 px-5 font-mono font-semibold">${apt.time_slot} <span class="text-ayur-muted block text-[10px]">${apt.date_iso}</span></td>
-            <td class="py-3 px-5 font-semibold">${apt.patient_name}</td>
+        const statusPill = isCompleted
+          ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Completed</span>`
+          : isCancelled
+            ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">Cancelled</span>`
+            : `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">Confirmed</span>`;
+
+        const initials = (apt.patient_name || 'Patient')
+          .split(' ')
+          .map(n => n[0])
+          .join('')
+          .slice(0, 2);
+
+        return `
+          <tr class="hover:bg-ayur-card/30 transition queue-row">
+            <td class="py-3 px-5 font-mono font-semibold text-ayur-dark">
+              ${apt.time_slot || '--'}
+              <span class="text-ayur-muted block text-[10px]">${apt.date_iso || '--'}</span>
+            </td>
+            <td class="py-3 px-5">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-full bg-ayur-mist border border-ayur-leaf flex items-center justify-center font-bold text-[10px] text-ayur-forest shadow-inner">
+                  ${initials}
+                </div>
+                <div>
+                  <span class="font-semibold text-ayur-dark block">${apt.patient_name || 'Patient'}</span>
+                  <span class="text-[10px] text-ayur-muted font-mono">${apt.id || '--'}</span>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-5">
+              <span class="text-[11px] ${(apt.patient_type || '').includes('New') ? 'text-ayur-green font-semibold' : 'text-ayur-muted'}">
+                ${apt.patient_type || 'Patient'}
+              </span>
+            </td>
+            <td class="py-3 px-5 text-ayur-forest font-medium">
+              ${apt.health_goal || 'Ayurvedic Consult'}
+              ${apt.deposit_paid ? '<span class="ml-1 text-[9px] bg-emerald-100 text-emerald-800 px-1 rounded">UPI Paid</span>' : ''}
+            </td>
             <td class="py-3 px-5 font-mono text-ayur-muted">${apt.patient_phone || '--'}</td>
-            <td class="py-3 px-5 text-ayur-forest">${apt.health_goal || apt.emr_notes || 'General Consult'}</td>
-            <td class="py-3 px-5"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">${apt.status}</span></td>
+            <td class="py-3 px-5">${statusPill}</td>
+            <td class="py-3 px-5 text-right space-x-1">
+              <button onclick="openEmrConsultationModal('${apt.id}')" class="px-2.5 py-1 rounded-lg bg-ayur-forest hover:bg-ayur-green text-white text-[11px] font-semibold shadow-xs">
+                EMR / Rx
+              </button>
+              ${!isCompleted ? `
+                <button onclick="markAppointmentCompleted('${apt.id}')" class="p-1 rounded-lg hover:bg-emerald-50 text-emerald-700" title="Quick Complete">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+              ` : ''}
+            </td>
           </tr>
-        `).join('');
-      } catch (e) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-rose-600">${e.message}</td></tr>`;
+        `;
+      }).join('');
+
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    function updateKpis() {
+      const today = getTodayIso();
+      const todayList = clinicDatabase.appointments.filter(a => a.date_iso === today);
+      const upcoming = todayList.filter(a => a.status === 'Confirmed').length;
+      const completed = clinicDatabase.appointments.filter(a => a.status === 'Completed').length;
+      const cancelled = clinicDatabase.appointments.filter(a => a.status === 'Cancelled').length;
+      const depositTotal = clinicDatabase.appointments.filter(a => a.deposit_paid).length * 200;
+
+      safeSetText('kpi-today-count', todayList.length);
+      safeSetText('kpi-upcoming-count', upcoming);
+      safeSetText('kpi-completed-count', completed);
+      safeSetText('kpi-cancelled-count', cancelled);
+      safeSetText('kpi-deposit-count', `₹${depositTotal}`);
+      safeSetText('kpi-enquiries-count', clinicDatabase.enquiries.length);
+      safeSetText('kpi-total-patients', 1280 + clinicDatabase.patients.length);
+    }
+
+    function filterQueueTable() {
+      const q = safeGetValue('queue-search-input').toLowerCase();
+      document.querySelectorAll('.queue-row').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    function openEmrConsultationModal(aptId) {
+      const apt = clinicDatabase.appointments.find(a => String(a.id) === String(aptId));
+      if (!apt) return;
+      activeEmrAppointment = apt;
+
+      safeSetText('emr-disp-name', apt.patient_name);
+      safeSetText('emr-disp-phone', apt.patient_phone);
+      safeSetText('emr-disp-date', `${apt.date_iso} at ${apt.time_slot}`);
+      safeSetText('emr-patient-subtitle', `Consultation with ${apt.patient_name} (${apt.patient_type || 'Patient'})`);
+      
+      const comp = document.getElementById('emr-complaints');
+      if (comp) comp.value = apt.health_goal || '';
+
+      safeRemoveClass('emr-modal', 'hidden');
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    function closeEmrModal() {
+      safeAddClass('emr-modal', 'hidden');
+      activeEmrAppointment = null;
+    }
+
+    async function saveEmrRecord() {
+      if (!activeEmrAppointment) return;
+      const aptId = activeEmrAppointment.id;
+      const patientName = activeEmrAppointment.patient_name || 'Patient';
+
+      const record = clinicDatabase.appointments.find(a => String(a.id) === String(aptId));
+      if (record) {
+        record.status = 'Completed';
+        record.emr_notes = safeGetValue('emr-diagnosis') || 'Ayurvedic prescription recorded.';
+      }
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient
+            .from('appointments')
+            .update({ status: 'Completed', emr_notes: record?.emr_notes })
+            .eq('id', aptId);
+        } catch (e) {}
+      }
+
+      closeEmrModal();
+      renderQueueTable();
+      updateKpis();
+      showToast(`Prescription & EMR saved for ${patientName}!`);
+    }
+
+    async function markAppointmentCompleted(aptId) {
+      const record = clinicDatabase.appointments.find(a => String(a.id) === String(aptId));
+      if (record) {
+        record.status = 'Completed';
+      }
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('appointments').update({ status: 'Completed' }).eq('id', aptId);
+        } catch (e) {}
+      }
+      renderQueueTable();
+      updateKpis();
+      showToast(`Consultation ${aptId} marked as completed.`);
+    }
+
+    function printPrescriptionLetterhead() {
+      window.print();
+    }
+
+    function renderWeeklyCalendar() {
+      const container = document.getElementById('calendar-week-grid');
+      if (!container) return;
+      container.innerHTML = '';
+      const baseDate = new Date();
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(baseDate);
+        d.setDate(baseDate.getDate() + i);
+        const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNum = d.getDate();
+        const isSunday = d.getDay() === 0;
+
+        const dayAppointments = clinicDatabase.appointments.filter(a => a.date_iso === iso);
+
+        const col = document.createElement('div');
+        col.className = `rounded-2xl p-3 border flex flex-col gap-2 min-h-[300px] ${
+          isSunday ? 'bg-ayur-card/40 border-dashed border-ayur-border' : 'bg-ayur-cream/60 border-ayur-border'
+        }`;
+
+        col.innerHTML = `
+          <div class="text-center pb-2 border-b border-ayur-border font-semibold text-xs text-ayur-dark">
+            <span class="block uppercase tracking-wider text-[10px] text-ayur-muted">${dayName}</span>
+            <span class="text-lg font-serif font-bold">${dayNum}</span>
+          </div>
+          <div class="space-y-2 flex-1">
+            ${isSunday ? '<p class="text-[10px] text-center text-ayur-muted pt-8">Clinic Closed</p>' : ''}
+            ${dayAppointments.map(a => `
+              <div class="p-2 bg-white border border-ayur-leaf/50 rounded-xl text-[11px] shadow-xs">
+                <p class="font-bold font-mono text-ayur-forest">${a.time_slot}</p>
+                <p class="font-semibold text-ayur-dark truncate">${a.patient_name}</p>
+                <span class="inline-block mt-0.5 text-[9px] px-1.5 py-0.2 rounded font-semibold ${
+                  a.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                }">${a.status}</span>
+              </div>
+            `).join('')}
+            ${!isSunday && dayAppointments.length === 0 ? '<p class="text-[10px] text-center text-ayur-muted pt-8">No bookings</p>' : ''}
+          </div>
+        `;
+        container.appendChild(col);
       }
     }
 
-    // Check existing session on load
+    function renderPatientsTable() {
+      const tbody = document.getElementById('patients-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = clinicDatabase.patients.map(p => `
+        <tr class="hover:bg-ayur-card/30 transition patient-row">
+          <td class="py-3 px-5 font-semibold text-ayur-dark">${p.name}</td>
+          <td class="py-3 px-5 text-ayur-forest font-medium">${p.prakriti || 'Dosha Screener Done'}</td>
+          <td class="py-3 px-5 font-mono text-ayur-muted">${p.phone}</td>
+          <td class="py-3 px-5">${p.sessions || 1} Consultations</td>
+          <td class="py-3 px-5 text-ayur-muted">${p.last_visit || 'Recent'}</td>
+          <td class="py-3 px-5 text-right"><button onclick="showToast('Loading full case sheet for ${p.name}')" class="text-ayur-green font-semibold hover:underline">View File</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function filterPatientsTable() {
+      const q = safeGetValue('patients-search-input').toLowerCase();
+      document.querySelectorAll('.patient-row').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    function renderEnquiriesTable() {
+      const tbody = document.getElementById('enquiries-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = clinicDatabase.enquiries.map(e => `
+        <tr class="hover:bg-ayur-card/30 transition">
+          <td class="py-3 px-5 font-semibold text-ayur-dark">${e.name}</td>
+          <td class="py-3 px-5"><span class="px-2 py-0.5 rounded text-[10px] bg-ayur-mist text-ayur-forest border border-ayur-leaf/30 font-semibold">${e.source}</span></td>
+          <td class="py-3 px-5 text-ayur-dark">${e.query}</td>
+          <td class="py-3 px-5"><span class="text-xs font-semibold text-amber-700">${e.status}</span></td>
+          <td class="py-3 px-5 text-right"><button onclick="showToast('Lead marked for callback')" class="text-ayur-forest font-semibold hover:underline">Follow Up</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function switchCrmTab(tabName) {
+      const tabs = ['dashboard', 'calendar', 'patients', 'enquiries', 'followups', 'analytics', 'settings'];
+      tabs.forEach(tab => {
+        safeAddClass(`crm-view-${tab}`, 'hidden');
+        const navEl = document.getElementById(`nav-item-${tab}`);
+        if (navEl) {
+          navEl.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-ayur-border hover:text-white hover:bg-white/5 transition";
+        }
+      });
+
+      safeRemoveClass(`crm-view-${tabName}`, 'hidden');
+      const activeNav = document.getElementById(`nav-item-${tabName}`);
+      if (activeNav) {
+        activeNav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-white bg-ayur-green/70 transition shadow-sm";
+      }
+
+      if (tabName === 'analytics') {
+        setTimeout(initAnalyticsCharts, 100);
+      }
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+    }
+
+    function openQuickActionModal(type) {
+      activeModalType = type;
+      const modal = document.getElementById('quick-action-modal');
+      const fields = document.getElementById('modal-form-fields');
+
+      if (type === 'patient') {
+        safeSetText('modal-title', 'Register New Patient');
+        safeSetText('modal-subtitle', 'Create a permanent case file in the clinic directory.');
+        if (fields) {
+          fields.innerHTML = `
+            <input type="text" id="m-p-name" placeholder="Full Name (e.g. Meera Joshi)" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+            <input type="tel" id="m-p-phone" placeholder="Phone Number (e.g. +91 98220 99887)" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+            <input type="text" id="m-p-prakriti" placeholder="Prakriti (e.g. Vata-Kapha)" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+          `;
+        }
+      } else if (type === 'enquiry') {
+        safeSetText('modal-title', 'Record Inbound Lead');
+        safeSetText('modal-subtitle', 'Log a prospect query from WhatsApp or clinic walk-in.');
+        if (fields) {
+          fields.innerHTML = `
+            <input type="text" id="m-e-name" placeholder="Prospect Name" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+            <select id="m-e-src" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs bg-ayur-cream">
+              <option>WhatsApp Direct</option><option>Clinic Walk-in</option><option>Website Form</option><option>Phone Call</option>
+            </select>
+            <input type="text" id="m-e-query" placeholder="Health concern or treatment interest" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+          `;
+        }
+      } else {
+        safeSetText('modal-title', 'Direct Physician Booking');
+        safeSetText('modal-subtitle', 'Reserve a consultation slot directly in the queue.');
+        if (fields) {
+          fields.innerHTML = `
+            <input type="text" id="m-b-name" placeholder="Patient Full Name" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+            <input type="tel" id="m-b-phone" placeholder="Phone Number" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+            <input type="date" id="m-b-date" value="${getTodayIso()}" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs bg-ayur-cream">
+            <input type="text" id="m-b-time" placeholder="Slot Time (e.g. 11:30 AM)" value="11:30 AM" class="w-full p-2.5 border border-ayur-border rounded-xl text-xs">
+          `;
+        }
+      }
+      safeRemoveClass('quick-action-modal', 'hidden');
+    }
+
+    function closeQuickActionModal() {
+      safeAddClass('quick-action-modal', 'hidden');
+    }
+
+    async function submitQuickActionModal() {
+      if (activeModalType === 'patient') {
+        const name = safeGetValue('m-p-name').trim();
+        const phone = safeGetValue('m-p-phone').trim();
+        const prakriti = safeGetValue('m-p-prakriti').trim() || 'Dosha Assessment Complete';
+        if (name && phone) {
+          clinicDatabase.patients.unshift({ name, phone, prakriti, sessions: 1, last_visit: getTodayIso() });
+          renderPatientsTable();
+          if (supabaseClient) {
+            try { await supabaseClient.from('patients').upsert({ name, phone, prakriti, last_visit: getTodayIso() }); } catch (e) {}
+          }
+          showToast(`Patient ${name} added.`);
+        }
+      } else if (activeModalType === 'enquiry') {
+        const name = safeGetValue('m-e-name').trim();
+        const source = safeGetValue('m-e-src');
+        const query = safeGetValue('m-e-query').trim() || 'General Consultation';
+        if (name) {
+          clinicDatabase.enquiries.unshift({ name, source, query, status: 'New' });
+          renderEnquiriesTable();
+          updateKpis();
+          showToast(`Inbound lead recorded.`);
+        }
+      } else if (activeModalType === 'appointment') {
+        const name = safeGetValue('m-b-name').trim();
+        const phone = safeGetValue('m-b-phone').trim();
+        const date = safeGetValue('m-b-date') || getTodayIso();
+        const time = safeGetValue('m-b-time') || '11:30 AM';
+        if (name && phone) {
+          const newApt = {
+            id: `AYUR-${Math.random().toString(16).substring(2, 8).toUpperCase()}`,
+            date_iso: date,
+            time_slot: time,
+            patient_name: name,
+            patient_phone: phone,
+            patient_type: 'Returning patient',
+            health_goal: 'Physician Direct Booking',
+            status: 'Confirmed',
+            deposit_paid: false
+          };
+          clinicDatabase.appointments.unshift(newApt);
+          renderQueueTable();
+          renderWeeklyCalendar();
+          updateKpis();
+          if (supabaseClient) {
+            try { await supabaseClient.from('appointments').insert([newApt]); } catch (e) {}
+          }
+          showToast(`Appointment booked for ${name}!`);
+        }
+      }
+      closeQuickActionModal();
+    }
+
+    function initAnalyticsCharts() {
+      if (chartsInitialized) return;
+      chartsInitialized = true;
+
+      const c1 = document.getElementById('chart-appointments-trend');
+      if (c1) {
+        if (chartTrend) chartTrend.destroy();
+        chartTrend = new Chart(c1, {
+          type: 'line',
+          data: {
+            labels: ['Day 1', 'Day 5', 'Day 10', 'Day 15', 'Day 20', 'Day 25', 'Day 30'],
+            datasets: [{
+              label: 'Consultations',
+              data: [6, 8, 9, 14, 11, 15, 18],
+              borderColor: '#1B4332',
+              backgroundColor: 'rgba(82, 183, 136, 0.15)',
+              tension: 0.35,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      const c2 = document.getElementById('chart-status-mix');
+      if (c2) {
+        if (chartStatus) chartStatus.destroy();
+        chartStatus = new Chart(c2, {
+          type: 'bar',
+          data: {
+            labels: ['Completed', 'Confirmed', 'Cancelled'],
+            datasets: [{
+              data: [142, 28, 4],
+              backgroundColor: ['#2D6A4F', '#52B788', '#E76F51'],
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+
+      const c3 = document.getElementById('chart-patient-ratio');
+      if (c3) {
+        if (chartRatio) chartRatio.destroy();
+        chartRatio = new Chart(c3, {
+          type: 'doughnut',
+          data: {
+            labels: ['Returning Patients (68%)', 'New Patients (32%)'],
+            datasets: [{ data: [68, 32], backgroundColor: ['#1B4332', '#74C69D'], borderWidth: 0 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      const c4 = document.getElementById('chart-enquiry-sources');
+      if (c4) {
+        if (chartSources) chartSources.destroy();
+        chartSources = new Chart(c4, {
+          type: 'pie',
+          data: {
+            labels: ['Website Booking', 'WhatsApp Direct', 'Clinic Walk-in'],
+            datasets: [{ data: [45, 35, 20], backgroundColor: ['#1B4332', '#2D6A4F', '#C5A059'], borderWidth: 0 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+    }
+
+    // Lifecycle Bootstrap
     window.addEventListener('DOMContentLoaded', async () => {
-      lucide.createIcons();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('portal-screen').classList.remove('hidden');
-        lucide.createIcons();
-        fetchDoctorAppointments();
+      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+      if (supabaseClient) {
+        try {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session) {
+            revealPortal();
+          }
+        } catch (e) {}
       }
     });
   </script>

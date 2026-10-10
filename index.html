@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AyurSutra Clinic | Book Ayurvedic Consultation</title>
+  <title>AyurSutra Clinic | Authentic Ayurvedic Consultation</title>
 
-  <!-- Typography: Playfair Display, Cinzel, and Inter -->
+  <!-- Google Fonts: Editorial Serif + Clean Modern UI Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- QRCode.js for Direct Indian UPI QR Rendering -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Official Supabase JavaScript Client CDN -->
+
+  <!-- Supabase JS Client CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Tailwind Configuration -->
   <script>
     tailwind.config = {
       theme: {
@@ -27,15 +28,15 @@
             ayur: {
               cream: '#FAF7F2',
               card: '#F4EFE6',
-              border: '#E2DAD0',
-              sand: '#DDD3C4',
-              muted: '#68776F',
-              dark: '#112217',
+              border: '#E3DCCE',
+              sand: '#DFD7C7',
+              muted: '#717D75',
+              dark: '#14281D',
               forest: '#1B4332',
               green: '#2D6A4F',
               sage: '#52B788',
               leaf: '#74C69D',
-              mist: '#E9F5EC',
+              mist: '#E8F5E9',
               gold: '#C5A059'
             }
           },
@@ -52,12 +53,12 @@
   <style>
     body {
       background-color: #FAF7F2;
-      color: #112217;
+      color: #14281D;
       font-family: 'Inter', sans-serif;
     }
     .leaf-pattern {
-      background-image: radial-gradient(circle at 1px 1px, rgba(27, 67, 50, 0.05) 1px, transparent 0);
-      background-size: 22px 22px;
+      background-image: radial-gradient(circle at 1px 1px, rgba(45, 106, 79, 0.07) 1px, transparent 0);
+      background-size: 24px 24px;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -67,378 +68,319 @@
       background: #FAF7F2;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #D3CAB9;
+      background: #D5CEBF;
       border-radius: 9999px;
-    }
-    @keyframes slideInRight {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .toast-anim {
-      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
 </head>
-<body class="min-h-screen antialiased flex flex-col leaf-pattern text-ayur-dark select-none">
+<body class="min-h-screen antialiased flex flex-col leaf-pattern">
 
-  <header class="bg-ayur-dark text-white px-4 sm:px-8 py-3 border-b border-ayur-green/30 flex items-center justify-between sticky top-0 z-40 shadow-md">
+  <!-- Top Navigation Bar -->
+  <header class="bg-ayur-dark text-white px-6 py-3.5 border-b border-ayur-green/30 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-40 shadow-sm">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-full bg-ayur-forest border border-ayur-leaf/40 flex items-center justify-center text-ayur-leaf shadow-inner">
-        <i data-lucide="sparkles" class="w-5 h-5"></i>
+      <div class="w-9 h-9 rounded-full bg-ayur-green flex items-center justify-center text-ayur-cream shadow-inner">
+        <i data-lucide="sparkles" class="w-5 h-5 text-ayur-leaf"></i>
       </div>
       <div>
-        <div class="flex items-center gap-2">
-          <h1 class="font-display tracking-widest text-sm sm:text-base font-bold uppercase text-white">AyurSutra</h1>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-ayur-green/60 text-ayur-leaf border border-ayur-leaf/20 uppercase font-semibold hidden sm:inline-block">Holistic Clinic</span>
-        </div>
-        <p class="text-[11px] text-ayur-leaf/80 tracking-wide">Dr. Manasi Kulkarni • Nadi Pariksha &amp; Panchakarma</p>
+        <h1 class="font-display tracking-widest text-sm font-bold uppercase text-ayur-cream">AyurSutra Clinic</h1>
+        <p class="text-[10px] text-ayur-leaf tracking-wider">Authentic Nadi Pariksha & Panchakarma</p>
       </div>
     </div>
 
-    <!-- Header Actions -->
-    <div class="flex items-center gap-2.5">
-      <!-- Self-Service Manage Booking Button -->
-      <button onclick="openManageBookingModal()" class="px-3.5 py-1.5 rounded-xl bg-ayur-forest hover:bg-ayur-green border border-ayur-leaf/30 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
+    <!-- Right Header Badges & Actions -->
+    <div class="flex items-center gap-3">
+      <span id="cloud-sync-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-white/10 text-ayur-sand border border-white/15">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Live Cloud Sync
+      </span>
+
+      <!-- Patient Self-Serve Portal Launcher -->
+      <button onclick="openManageBookingModal()" class="px-3.5 py-1.5 rounded-xl border border-white/20 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-1.5 transition">
         <i data-lucide="ticket" class="w-3.5 h-3.5 text-ayur-leaf"></i> Manage Booking
       </button>
 
-      <!-- Cloud Sync Status Pill -->
-      <div id="storage-status-pill" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-[11px] text-ayur-leaf">
-        <span id="storage-status-indicator" class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        <span id="storage-status-label">Slot Sync Active</span>
-      </div>
-
-      <!-- Physician Portal Direct Link -->
-      <a href="doctor.html" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-ayur-leaf text-xs font-semibold flex items-center gap-1.5 transition" title="Physician EMR Portal">
-        <i data-lucide="shield" class="w-3.5 h-3.5 text-ayur-gold"></i>
-        <span class="hidden md:inline">Doctor Portal</span>
+      <!-- Physician Portal Redirect Link -->
+      <a href="doctor.html" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-ayur-sand text-xs font-semibold flex items-center gap-1.5 transition">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-ayur-leaf"></i> Doctor Portal
       </a>
     </div>
   </header>
 
-  <div id="toast-container" class="fixed top-16 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"></div>
+  <!-- Main Patient Booking Wizard -->
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
+    <div class="w-full max-w-5xl bg-ayur-cream rounded-3xl shadow-2xl border border-ayur-border overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
 
-  <main class="flex-1 flex items-center justify-center p-3 sm:p-6 lg:p-8">
-    <div class="w-full max-w-5xl bg-ayur-cream rounded-3xl shadow-2xl border border-ayur-border overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[660px]">
-      
-      <!-- Persistent Left Branding Panel (4 Columns) -->
-      <aside class="lg:col-span-4 bg-ayur-forest text-ayur-cream p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden">
-        <div class="absolute -right-20 -top-20 w-64 h-64 bg-ayur-green/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-ayur-sage/10 rounded-full blur-3xl pointer-events-none"></div>
+      <!-- Left Branding & Guide Panel (4 Columns) -->
+      <aside class="lg:col-span-4 bg-ayur-forest text-ayur-cream p-8 flex flex-col justify-between relative overflow-hidden">
+        <div class="absolute -right-16 -top-16 w-56 h-56 bg-ayur-green/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-56 h-56 bg-ayur-sage/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div>
-          <span class="inline-block px-3 py-1 bg-ayur-green/50 text-ayur-leaf text-[11px] rounded-full font-medium tracking-wider uppercase mb-5 border border-ayur-leaf/20">
-            Clinical Consultation
+        <div class="relative z-10">
+          <span class="inline-block px-3 py-1 bg-ayur-green/50 text-ayur-leaf text-xs rounded-full font-medium tracking-wider uppercase mb-5 border border-ayur-leaf/20">
+            Consultation Desk
           </span>
-          <h2 class="font-serif text-2xl sm:text-3xl font-semibold leading-snug text-white mb-2">Restoring Harmony in Mind &amp; Body</h2>
-          <p class="text-xs sm:text-sm text-ayur-card/80 font-normal leading-relaxed mb-8">
+          <h2 class="font-serif text-3xl font-semibold leading-tight text-white mb-3">Restoring Harmony in Mind & Body</h2>
+          <p class="text-sm text-ayur-card/80 font-normal leading-relaxed mb-6">
             Experience traditional Ayurvedic pulse diagnosis (Nadi Pariksha) and individualized clinical herbal protocols.
           </p>
 
-          <!-- Step Progression Indicators -->
+          <!-- Nadi Pariksha Fasting Alert -->
+          <div class="p-3.5 bg-black/20 rounded-2xl border border-white/10 mb-6 text-xs text-ayur-card/90 space-y-1">
+            <div class="flex items-center gap-1.5 font-bold text-amber-300">
+              <i data-lucide="info" class="w-4 h-4 shrink-0"></i> Nadi Pariksha Preparation
+            </div>
+            <p class="text-[11px] text-white/80 leading-relaxed">
+              For accurate pulse diagnosis, morning slots require <strong>2.5 hours of fasting</strong> (warm water is permitted).
+            </p>
+          </div>
+
+          <!-- Wizard Step Navigation Indicators -->
           <div class="space-y-4" id="wizard-steps-indicator">
-            <div class="flex items-center gap-3.5 text-white" id="step-nav-1">
+            <div class="flex items-center gap-3 text-white" id="step-nav-1">
               <span class="w-7 h-7 rounded-full bg-ayur-sage text-ayur-dark flex items-center justify-center text-xs font-bold ring-4 ring-ayur-sage/20">1</span>
-              <span class="text-xs sm:text-sm font-medium">Select Date</span>
+              <span class="text-sm font-medium">Select Date</span>
             </div>
-            <div class="flex items-center gap-3.5 text-ayur-card/60" id="step-nav-2">
+            <div class="flex items-center gap-3 text-ayur-card/60" id="step-nav-2">
               <span class="w-7 h-7 rounded-full bg-ayur-dark/70 border border-ayur-card/30 flex items-center justify-center text-xs font-bold">2</span>
-              <span class="text-xs sm:text-sm font-medium">Choose Time Slot</span>
+              <span class="text-sm font-medium">Choose Time Slot</span>
             </div>
-            <div class="flex items-center gap-3.5 text-ayur-card/60" id="step-nav-3">
+            <div class="flex items-center gap-3 text-ayur-card/60" id="step-nav-3">
               <span class="w-7 h-7 rounded-full bg-ayur-dark/70 border border-ayur-card/30 flex items-center justify-center text-xs font-bold">3</span>
-              <span class="text-xs sm:text-sm font-medium">Patient &amp; Dosha Intake</span>
+              <span class="text-sm font-medium">Patient & Health Focus</span>
             </div>
-            <div class="flex items-center gap-3.5 text-ayur-card/60" id="step-nav-4">
+            <div class="flex items-center gap-3 text-ayur-card/60" id="step-nav-4">
               <span class="w-7 h-7 rounded-full bg-ayur-dark/70 border border-ayur-card/30 flex items-center justify-center text-xs font-bold">4</span>
-              <span class="text-xs sm:text-sm font-medium">Confirm &amp; Summary</span>
+              <span class="text-sm font-medium">Confirm & Summary</span>
             </div>
           </div>
         </div>
 
-        <div class="pt-6 border-t border-ayur-green/60 text-xs text-ayur-card/80 flex items-center gap-3">
-          <div class="w-12 h-12 rounded-full bg-ayur-green/50 border-2 border-ayur-leaf flex items-center justify-center text-white font-serif font-bold text-base shadow-inner">
+        <!-- Physician Credentials -->
+        <div class="pt-6 border-t border-ayur-green/60 text-xs text-ayur-card/80 flex items-center gap-3 relative z-10">
+          <div class="w-11 h-11 rounded-full bg-ayur-green border-2 border-ayur-leaf flex items-center justify-center font-serif text-white font-bold text-sm shadow-md">
             DM
           </div>
           <div>
             <p class="font-semibold text-white text-sm">Dr. Manasi Kulkarni</p>
-            <p class="text-ayur-leaf text-xs font-medium">BAMS, MD (Ayurveda Specialist)</p>
-            <p class="text-[10px] text-ayur-card/60">Reg. No: AYUR-MH-44219</p>
+            <p class="text-ayur-leaf text-xs">BAMS, MD (Ayurveda Specialist)</p>
           </div>
         </div>
       </aside>
 
-      <section class="lg:col-span-8 p-6 sm:p-10 flex flex-col justify-between bg-ayur-cream relative">
-        
-        <!-- STEP 1: DATE SELECTION (14-DAY CALENDAR GRID) -->
-        <div id="step-content-1" class="space-y-6">
-          <div class="flex items-center justify-between">
+      <!-- Right Interaction Area (8 Columns) -->
+      <section class="lg:col-span-8 p-6 sm:p-8 md:p-10 flex flex-col justify-between bg-ayur-cream relative">
+
+        <!-- STEP 1: DATE SELECTION (14-DAY CALENDAR) -->
+        <div id="step-content-1" class="space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="text-[11px] font-semibold text-ayur-green uppercase tracking-wider">Step 1 of 4</span>
-              <h3 class="font-serif text-2xl font-bold text-ayur-dark mt-0.5">Select Appointment Date</h3>
-              <p class="text-xs text-ayur-muted mt-1">Select an upcoming consultation date over the next 14 clinic days.</p>
+              <span class="text-xs font-semibold text-ayur-green uppercase tracking-wider">Step 1 of 4</span>
+              <h3 class="font-serif text-2xl font-bold text-ayur-dark">Select Appointment Date</h3>
+              <p class="text-xs text-ayur-muted mt-0.5">Select an upcoming consultation date over the next 14 clinic days.</p>
             </div>
-            <span class="text-xs bg-ayur-card border border-ayur-border px-3 py-1 rounded-full text-ayur-forest font-medium hidden sm:inline-block">
+            <span class="text-[11px] font-semibold text-ayur-muted bg-ayur-card px-2.5 py-1 rounded-full border border-ayur-border">
               Clinic Open Mon – Sat
             </span>
           </div>
 
-          <!-- Dynamic 14-day grid -->
-          <div id="calendar-days-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 max-h-[360px] overflow-y-auto p-1 custom-scrollbar min-h-[160px]">
-            <!-- Rendered via JavaScript -->
+          <!-- Dynamic 14-Day Grid -->
+          <div id="calendar-days-grid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5 max-h-[380px] overflow-y-auto p-1 custom-scrollbar">
+            <!-- Injected via JavaScript -->
           </div>
         </div>
 
-        <div id="step-content-2" class="space-y-5 hidden">
-          <div class="flex items-center justify-between">
+        <!-- STEP 2: TIME SLOT SELECTION -->
+        <div id="step-content-2" class="space-y-6 hidden">
+          <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="text-[11px] font-semibold text-ayur-green uppercase tracking-wider">Step 2 of 4</span>
-              <h3 class="font-serif text-2xl font-bold text-ayur-dark mt-0.5">Select Preferred Time Slot</h3>
-              <p class="text-xs text-ayur-forest font-semibold mt-1" id="selected-date-banner">Selected Date: --</p>
+              <span class="text-xs font-semibold text-ayur-green uppercase tracking-wider">Step 2 of 4</span>
+              <h3 class="font-serif text-2xl font-bold text-ayur-dark">Select Preferred Time Slot</h3>
+              <p class="text-xs text-ayur-muted mt-0.5" id="selected-date-banner">Selected Date: --</p>
             </div>
-            <span class="text-[11px] text-ayur-muted bg-white px-2.5 py-1 rounded-full border border-ayur-border">
+            <span class="text-[11px] font-semibold text-ayur-forest bg-ayur-mist px-3 py-1 rounded-full border border-ayur-leaf/30">
               30 Mins / Consultation
             </span>
           </div>
 
-          <!-- Nadi Pariksha Fasting Notice -->
-          <div class="p-3.5 bg-amber-50/90 border border-amber-200/90 rounded-2xl flex items-start gap-2.5 text-xs text-amber-900 shadow-sm">
-            <i data-lucide="info" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5"></i>
-            <div>
-              <strong class="font-semibold text-amber-950">Nadi Pariksha (Pulse Diagnosis) Clinical Protocol:</strong>
-              <p class="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
-                For precise pulse examination, maintain an empty stomach or allow a minimum of <strong>2.5 hours gap after eating</strong>. Avoid morning tea, coffee, or smoking prior to your consultation.
+          <!-- Morning Fasting Slots -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-xs font-bold text-ayur-dark flex items-center gap-1.5">
+                <i data-lucide="sun" class="w-4 h-4 text-amber-600"></i> Morning Consultations (10:00 AM – 01:00 PM)
               </p>
+              <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md font-semibold">
+                Fasting Recommended for Nadi Pariksha
+              </span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="morning-slots-grid">
+              <!-- Rendered via JS -->
             </div>
           </div>
 
-          <div class="space-y-5">
-            <div>
-              <div class="flex items-center justify-between mb-2.5">
-                <p class="text-xs font-semibold text-ayur-forest flex items-center gap-1.5">
-                  <i data-lucide="sun" class="w-4 h-4 text-amber-600"></i> Morning Consultations (10:00 AM – 01:00 PM)
-                </p>
-                <span class="text-[10px] bg-ayur-mist text-ayur-forest px-2 py-0.5 rounded-full font-medium border border-ayur-leaf/30 hidden sm:inline">
-                  Ideal for Fasting Nadi Pariksha
-                </span>
-              </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="morning-slots-grid"></div>
-            </div>
-
-            <div>
-              <p class="text-xs font-semibold text-ayur-forest mb-2.5 flex items-center gap-1.5">
-                <i data-lucide="sunset" class="w-4 h-4 text-orange-600"></i> Evening Consultations (04:00 PM – 07:00 PM)
-              </p>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="evening-slots-grid"></div>
+          <!-- Afternoon / Evening Slots -->
+          <div>
+            <p class="text-xs font-bold text-ayur-dark flex items-center gap-1.5 mb-3">
+              <i data-lucide="sunset" class="w-4 h-4 text-emerald-700"></i> Evening Consultations (04:00 PM – 07:00 PM)
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="afternoon-slots-grid">
+              <!-- Rendered via JS -->
             </div>
           </div>
         </div>
 
-        <div id="step-content-3" class="space-y-5 hidden overflow-y-auto max-h-[470px] pr-1 custom-scrollbar">
+        <!-- STEP 3: PATIENT & PRAKRITI INTAKE -->
+        <div id="step-content-3" class="space-y-5 hidden">
           <div>
-            <span class="text-[11px] font-semibold text-ayur-green uppercase tracking-wider">Step 3 of 4</span>
-            <h3 class="font-serif text-2xl font-bold text-ayur-dark mt-0.5">Patient Details &amp; Dosha Intake</h3>
-            <p class="text-xs text-ayur-muted mt-0.5">Please provide clinical record information for Dr. Manasi.</p>
+            <span class="text-xs font-semibold text-ayur-green uppercase tracking-wider">Step 3 of 4</span>
+            <h3 class="font-serif text-2xl font-bold text-ayur-dark">Patient Information & Health Focus</h3>
+            <p class="text-xs text-ayur-muted mt-0.5">Please provide your details so Dr. Manasi can review your clinical record.</p>
           </div>
 
-          <div class="space-y-4 max-w-lg">
+          <div class="space-y-4 max-w-xl">
             <!-- Patient Type Pill Toggle -->
             <div>
-              <label class="block text-xs font-semibold text-ayur-dark mb-1.5">Consultation Type</label>
+              <label class="block text-xs font-semibold text-ayur-dark mb-1.5">Consultation History</label>
               <div class="inline-flex p-1 bg-ayur-card border border-ayur-border rounded-xl">
-                <button type="button" id="btn-patient-new" onclick="setPatientType('New patient')" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white shadow-sm transition">
-                  New Patient
+                <button type="button" id="btn-patient-new" onclick="setPatientType('New patient')" class="px-4 py-1.5 rounded-lg text-xs font-medium bg-ayur-forest text-white shadow-sm transition">
+                  First-Time Patient
                 </button>
-                <button type="button" id="btn-patient-returning" onclick="setPatientType('Returning patient')" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-ayur-dark hover:text-ayur-green transition">
+                <button type="button" id="btn-patient-returning" onclick="setPatientType('Returning patient')" class="px-4 py-1.5 rounded-lg text-xs font-medium text-ayur-dark hover:text-ayur-green transition">
                   Returning Patient
                 </button>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Patient Contact Form Fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label class="block text-xs font-semibold text-ayur-dark mb-1">Full Name <span class="text-rose-600">*</span></label>
-                <input type="text" id="cust-name" placeholder="e.g. Ananya Deshmukh" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none">
+                <input type="text" id="cust-name" placeholder="e.g. Ramesh Patil" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-sm focus:ring-2 focus:ring-ayur-green focus:outline-none">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-ayur-dark mb-1">Phone Number <span class="text-rose-600">*</span></label>
-                <input type="tel" id="cust-phone" placeholder="e.g. +91 98220 12345" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none">
+                <input type="tel" id="cust-phone" placeholder="e.g. 9822012345" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-sm focus:ring-2 focus:ring-ayur-green focus:outline-none">
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-ayur-dark mb-1">Email Address <span class="text-ayur-muted text-[11px]">(Optional for appointment confirmation)</span></label>
-              <input type="email" id="cust-email" placeholder="ananya@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none">
+              <label class="block text-xs font-semibold text-ayur-dark mb-1">Email Address <span class="text-ayur-muted text-[11px]">(Optional for e-prescriptions)</span></label>
+              <input type="email" id="cust-email" placeholder="ramesh@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-sm focus:ring-2 focus:ring-ayur-green focus:outline-none">
             </div>
 
-            <!-- Health Objective Selector -->
+            <!-- Primary Health Objective -->
             <div>
-              <label class="block text-xs font-semibold text-ayur-dark mb-1.5">Primary Health Focus</label>
-              <div class="flex flex-wrap gap-2" id="health-goal-chips">
-                <button type="button" onclick="selectHealthGoal(this, 'Panchakarma Detox')" class="goal-chip px-3 py-1.5 rounded-xl border border-ayur-forest bg-ayur-forest text-white text-xs font-semibold shadow-sm transition">Panchakarma Detox</button>
-                <button type="button" onclick="selectHealthGoal(this, 'Digestive & Agni')" class="goal-chip px-3 py-1.5 rounded-xl border border-ayur-border bg-white text-xs font-medium text-ayur-dark hover:border-ayur-green transition">Digestive &amp; Agni</button>
-                <button type="button" onclick="selectHealthGoal(this, 'Stress & Insomnia')" class="goal-chip px-3 py-1.5 rounded-xl border border-ayur-border bg-white text-xs font-medium text-ayur-dark hover:border-ayur-green transition">Stress &amp; Insomnia</button>
-                <button type="button" onclick="selectHealthGoal(this, 'Joint & Spine Pain')" class="goal-chip px-3 py-1.5 rounded-xl border border-ayur-border bg-white text-xs font-medium text-ayur-dark hover:border-ayur-green transition">Joint &amp; Spine Pain</button>
-                <button type="button" onclick="selectHealthGoal(this, 'Skin & Hair Health')" class="goal-chip px-3 py-1.5 rounded-xl border border-ayur-border bg-white text-xs font-medium text-ayur-dark hover:border-ayur-green transition">Skin &amp; Hair</button>
-              </div>
+              <label class="block text-xs font-semibold text-ayur-dark mb-1">Primary Clinical Focus</label>
+              <select id="cust-goal" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-xs font-medium focus:ring-2 focus:ring-ayur-green focus:outline-none">
+                <option value="General Nadi Pariksha Consultation">General Pulse Diagnosis & Dosha Evaluation</option>
+                <option value="Digestive Health / Agni & Gut Balance">Digestive Health / Agni & Gut Imbalance</option>
+                <option value="Chronic Joint Pain / Arthritis (Vata Vyadhi)">Chronic Joint Pain / Musculoskeletal (Vata)</option>
+                <option value="Stress, Insomnia & Mental Rejuvenation (Manas)">Stress, Insomnia & Nervous Exhaustion</option>
+                <option value="Skin, Allergies & Blood Purification (Rakta/Pitta)">Skin & Allergic Health (Pitta Detox)</option>
+                <option value="Panchakarma Detox Consultation">Panchakarma Seasonal Detoxification Program</option>
+              </select>
             </div>
 
-            <!-- Prakriti 3-Question Intake Form Accordion -->
-            <div class="p-3.5 bg-ayur-card rounded-2xl border border-ayur-border space-y-3">
-              <div class="flex items-center justify-between cursor-pointer" onclick="togglePrakritiSection()">
-                <div>
-                  <span class="text-xs font-bold text-ayur-dark flex items-center gap-1.5">
-                    <i data-lucide="activity" class="w-3.5 h-3.5 text-ayur-green"></i> 1-Minute Dosha Assessment (Optional)
-                  </span>
-                  <p class="text-[11px] text-ayur-muted">Provides Dr. Manasi an initial overview prior to your Nadi pulse examination.</p>
-                </div>
-                <i data-lucide="chevron-down" id="prakriti-chevron" class="w-4 h-4 text-ayur-muted transition"></i>
-              </div>
-
-              <div id="prakriti-questions" class="space-y-3 pt-2 border-t border-ayur-border/60 hidden">
-                <div>
-                  <label class="block text-[11px] font-semibold text-ayur-dark mb-1">1. Digestion &amp; Appetite (Agni)</label>
-                  <select id="pr-appetite" class="w-full p-2 bg-white rounded-xl border border-ayur-border text-xs">
-                    <option value="Irregular / Gas & Bloating (Vata)">Irregular / Gas &amp; Bloating (Vata)</option>
-                    <option value="Strong / Hyperacidity & Heat (Pitta)">Strong / Hyperacidity &amp; Heat (Pitta)</option>
-                    <option value="Slow / Heavy after meals (Kapha)">Slow / Feeling heavy after meals (Kapha)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-ayur-dark mb-1">2. Sleep Quality</label>
-                  <select id="pr-sleep" class="w-full p-2 bg-white rounded-xl border border-ayur-border text-xs">
-                    <option value="Light & Broken (Vata)">Light &amp; Broken / Restless mind (Vata)</option>
-                    <option value="Moderate / Wakes with heat (Pitta)">Moderate / 6-7 hours / Wakes with heat (Pitta)</option>
-                    <option value="Deep & Heavy (Kapha)">Deep &amp; Heavy / Hard to wake early (Kapha)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-[11px] font-semibold text-ayur-dark mb-1">3. Stress Response</label>
-                  <select id="pr-stress" class="w-full p-2 bg-white rounded-xl border border-ayur-border text-xs">
-                    <option value="Anxiety & Worry (Vata)">Anxiety, nervousness &amp; racing thoughts (Vata)</option>
-                    <option value="Irritation & Anger (Pitta)">Impatience, irritability &amp; frustration (Pitta)</option>
-                    <option value="Withdrawal & Avoidance (Kapha)">Withdrawal, lethargy &amp; procrastination (Kapha)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- Indian Direct UPI Deposit Option -->
-            <div class="p-3.5 bg-white rounded-2xl border border-ayur-border flex items-center justify-between">
-              <div>
-                <p class="text-xs font-semibold text-ayur-dark">Advance Priority Slot Deposit (Optional)</p>
-                <p class="text-[11px] text-ayur-muted">Pay ₹200 via direct UPI (GPay/PhonePe/Paytm) to reserve your priority slot.</p>
-              </div>
-              <input type="checkbox" id="deposit-toggle-checkbox" class="w-4 h-4 text-ayur-green rounded accent-ayur-forest">
-            </div>
-
-            <!-- Consents -->
-            <div class="space-y-1.5 pt-1">
-              <label class="flex items-start gap-2 text-[11px] text-ayur-muted cursor-pointer">
-                <input type="checkbox" id="consent-dpdp" checked class="mt-0.5 accent-ayur-forest">
-                <span>I consent to clinical record maintenance in accordance with Indian Digital Personal Data Protection standards.</span>
-              </label>
-              <label class="flex items-start gap-2 text-[11px] text-ayur-muted cursor-pointer">
-                <input type="checkbox" id="consent-whatsapp" checked class="mt-0.5 accent-ayur-forest">
-                <span>Receive WhatsApp confirmation containing Nadi Pariksha fasting guidelines &amp; clinic address.</span>
+            <!-- Digital Health Consent Checkbox -->
+            <div class="pt-2">
+              <label class="flex items-start gap-2.5 text-xs text-ayur-muted cursor-pointer">
+                <input type="checkbox" id="consent-check" checked class="mt-0.5 rounded border-ayur-border text-ayur-forest focus:ring-ayur-green">
+                <span>I consent to receiving appointment reminders and clinical instructions on WhatsApp from AyurSutra Clinic.</span>
               </label>
             </div>
           </div>
         </div>
 
+        <!-- STEP 4: REVIEW & CONFIRMATION -->
         <div id="step-content-4" class="space-y-6 hidden">
           <div>
-            <span class="text-[11px] font-semibold text-ayur-green uppercase tracking-wider">Step 4 of 4</span>
-            <h3 class="font-serif text-2xl font-bold text-ayur-dark mt-0.5">Review Summary Sheet</h3>
-            <p class="text-xs text-ayur-muted mt-1">Please confirm your consultation appointment details before locking.</p>
+            <span class="text-xs font-semibold text-ayur-green uppercase tracking-wider">Step 4 of 4</span>
+            <h3 class="font-serif text-2xl font-bold text-ayur-dark">Review Consultation Details</h3>
+            <p class="text-xs text-ayur-muted mt-0.5">Please verify your booking details before committing the consultation slot.</p>
           </div>
 
           <div class="bg-ayur-card border border-ayur-border rounded-2xl p-5 space-y-3.5">
-            <div class="flex justify-between items-center pb-3 border-b border-ayur-border">
-              <span class="text-xs text-ayur-muted">Attending Physician</span>
-              <span class="text-sm font-semibold text-ayur-dark">Dr. Manasi Kulkarni (MD Ayurveda)</span>
+            <div class="flex justify-between items-center pb-2.5 border-b border-ayur-border/80">
+              <span class="text-xs text-ayur-muted">Consulting Physician</span>
+              <span class="text-sm font-semibold text-ayur-dark">Dr. Manasi Kulkarni (BAMS, MD)</span>
             </div>
-            <div class="flex justify-between items-center pb-3 border-b border-ayur-border">
+            <div class="flex justify-between items-center pb-2.5 border-b border-ayur-border/80">
               <span class="text-xs text-ayur-muted">Consultation Date</span>
               <span class="text-sm font-semibold text-ayur-dark" id="summary-date">--</span>
             </div>
-            <div class="flex justify-between items-center pb-3 border-b border-ayur-border">
-              <span class="text-xs text-ayur-muted">Selected Timeslot</span>
+            <div class="flex justify-between items-center pb-2.5 border-b border-ayur-border/80">
+              <span class="text-xs text-ayur-muted">Timeslot</span>
               <span class="text-sm font-bold text-ayur-green font-mono" id="summary-time">--</span>
             </div>
-            <div class="flex justify-between items-center pb-3 border-b border-ayur-border">
+            <div class="flex justify-between items-center pb-2.5 border-b border-ayur-border/80">
               <span class="text-xs text-ayur-muted">Patient Name</span>
               <span class="text-sm font-semibold text-ayur-dark" id="summary-name">--</span>
             </div>
-            <div class="flex justify-between items-center pb-3 border-b border-ayur-border">
-              <span class="text-xs text-ayur-muted">Phone Number</span>
+            <div class="flex justify-between items-center pb-2.5 border-b border-ayur-border/80">
+              <span class="text-xs text-ayur-muted">Contact Phone</span>
               <span class="text-sm font-semibold text-ayur-dark font-mono" id="summary-phone">--</span>
             </div>
-            <div class="flex justify-between items-center pb-3 border-b border-ayur-border">
-              <span class="text-xs text-ayur-muted">Health Focus</span>
-              <span class="text-xs font-semibold text-ayur-forest" id="summary-health-goal">Panchakarma Detox</span>
+            <div class="flex justify-between items-center pb-2.5 border-b border-ayur-border/80">
+              <span class="text-xs text-ayur-muted">Health Concern</span>
+              <span class="text-xs font-medium text-ayur-forest max-w-[280px] text-right truncate" id="summary-goal">--</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-xs text-ayur-muted">Payment Mode</span>
-              <span class="text-xs font-semibold px-3 py-1 rounded-full bg-ayur-mist text-ayur-forest border border-ayur-leaf/40" id="summary-deposit-status">Pay at Clinic</span>
+              <span class="text-xs text-ayur-muted">Patient Category</span>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-ayur-mist text-ayur-forest border border-ayur-leaf/40" id="summary-type">--</span>
             </div>
           </div>
         </div>
 
-        <div id="step-content-success" class="space-y-6 text-center py-6 hidden">
-          <div class="w-16 h-16 bg-ayur-mist border-2 border-ayur-sage text-ayur-forest rounded-full mx-auto flex items-center justify-center">
+        <!-- SUCCESS SCREEN -->
+        <div id="step-content-success" class="space-y-6 text-center py-4 hidden">
+          <div class="w-16 h-16 bg-ayur-mist border-2 border-ayur-sage text-ayur-forest rounded-full mx-auto flex items-center justify-center shadow-sm">
             <i data-lucide="check-check" class="w-8 h-8 text-ayur-green"></i>
           </div>
 
           <div>
-            <span class="text-xs font-semibold text-ayur-sage uppercase tracking-widest">Consultation Confirmed</span>
-            <h3 class="font-serif text-3xl font-bold text-ayur-dark mt-1">We Look Forward to Seeing You</h3>
+            <span class="text-xs font-bold text-ayur-sage uppercase tracking-widest">Appointment Confirmed</span>
+            <h3 class="font-serif text-3xl font-bold text-ayur-dark mt-1">We Look Forward to Your Visit</h3>
             <p class="text-xs text-ayur-muted mt-2 max-w-md mx-auto">
-              Your consultation is locked and registered with Dr. Manasi's clinical schedule.
+              Your appointment is recorded. Please review the Nadi Pariksha fasting guidelines if visiting in the morning session.
             </p>
           </div>
 
-          <!-- Confirmation Card -->
-          <div class="max-w-md mx-auto bg-ayur-card border border-ayur-border rounded-2xl p-5 text-left space-y-2.5 shadow-sm">
-            <div class="flex justify-between items-center pb-2 border-b border-ayur-border/80">
+          <!-- Dynamic Confirmation Card -->
+          <div class="max-w-md mx-auto bg-ayur-card border border-ayur-border rounded-2xl p-5 text-left space-y-3 shadow-sm">
+            <div class="flex justify-between items-center pb-2 border-b border-ayur-border">
               <span class="text-xs font-medium text-ayur-muted">Confirmation ID</span>
-              <span class="font-mono text-sm font-bold text-ayur-forest bg-white px-2 py-0.5 rounded border border-ayur-border" id="success-id">AYUR-3C4F2A</span>
+              <span class="font-mono text-xs font-bold text-ayur-forest bg-white px-2 py-0.5 rounded border border-ayur-border" id="success-id">--</span>
             </div>
-            <div class="flex justify-between items-center pb-2 border-b border-ayur-border/80">
-              <span class="text-xs font-medium text-ayur-muted">Scheduled Slot</span>
-              <span class="text-sm font-semibold text-ayur-dark" id="success-datetime">--</span>
-            </div>
-            <div class="flex justify-between items-center pb-2 border-b border-ayur-border/80">
-              <span class="text-xs font-medium text-ayur-muted">Attending Doctor</span>
-              <span class="text-sm font-semibold text-ayur-dark">Dr. Manasi Kulkarni</span>
+            <div class="flex justify-between items-center pb-2 border-b border-ayur-border">
+              <span class="text-xs font-medium text-ayur-muted">Date & Time</span>
+              <span class="text-xs font-semibold text-ayur-dark" id="success-datetime">--</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-xs font-medium text-ayur-muted">Nadi Prep Note</span>
-              <span class="text-[11px] font-semibold text-amber-800">Fasting / 2.5 hrs post-meal</span>
+              <span class="text-xs font-medium text-ayur-muted">Doctor</span>
+              <span class="text-xs font-semibold text-ayur-dark">Dr. Manasi Kulkarni</span>
             </div>
           </div>
 
-          <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-2.5 justify-center max-w-md mx-auto pt-1">
-            <button onclick="downloadCalendarFile()" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-ayur-card border border-ayur-border text-ayur-dark text-xs font-semibold shadow-sm transition">
-              <i data-lucide="calendar-plus" class="w-4 h-4 text-ayur-green"></i> Add to Calendar
-            </button>
-            <a id="btn-success-whatsapp" href="https://wa.me/919876543210" target="_blank" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
-              <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Us
-            </a>
-            <a href="tel:+919876543210" class="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold shadow-sm transition">
+          <!-- Primary Contact & Messaging Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto pt-2">
+            <a id="btn-call-clinic" href="tel:+919922603570" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold shadow-sm transition">
               <i data-lucide="phone-call" class="w-4 h-4"></i> Call Clinic
+            </a>
+            <a id="btn-whatsapp-clinic" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
+              <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Us
             </a>
           </div>
 
-          <div class="pt-2">
-            <button onclick="resetBookingWizard()" class="text-xs text-ayur-muted underline hover:text-ayur-forest font-medium">
-              Book another consultation
+          <div class="flex items-center justify-center gap-4 text-xs pt-1">
+            <button onclick="downloadCalendarInvite()" class="text-ayur-forest hover:underline font-semibold flex items-center gap-1">
+              <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Add to Calendar (.ics)
+            </button>
+            <span class="text-ayur-border">|</span>
+            <button onclick="resetBookingWizard()" class="text-ayur-muted hover:text-ayur-dark underline">
+              Book another slot
             </button>
           </div>
         </div>
 
-        <!-- Wizard Navigation Footer -->
+        <!-- Wizard Step Navigation Buttons Footer -->
         <div id="wizard-navigation-bar" class="pt-6 border-t border-ayur-border flex items-center justify-between">
           <button id="btn-wizard-back" onclick="navigateWizard(-1)" class="px-5 py-2.5 rounded-xl border border-ayur-border text-ayur-dark hover:bg-ayur-card text-xs font-semibold flex items-center gap-2 opacity-50 cursor-not-allowed transition" disabled>
             <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
@@ -453,253 +395,199 @@
     </div>
   </main>
 
-  <div id="manage-booking-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 border border-ayur-border shadow-2xl relative">
+  <!-- PATIENT SELF-SERVICE MODAL (RESCHEDULE / CANCEL) -->
+  <div id="manage-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border border-ayur-border shadow-2xl relative">
       <button onclick="closeManageBookingModal()" class="absolute right-5 top-5 text-ayur-muted hover:text-black">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <div class="flex items-center gap-3 pb-3 border-b border-ayur-border">
-        <div class="w-10 h-10 rounded-full bg-ayur-mist text-ayur-forest flex items-center justify-center">
-          <i data-lucide="calendar" class="w-5 h-5"></i>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="w-8 h-8 rounded-full bg-ayur-mist flex items-center justify-center text-ayur-forest">
+          <i data-lucide="ticket" class="w-4 h-4"></i>
         </div>
-        <div>
-          <h3 class="font-serif text-xl font-bold text-ayur-dark">Manage Your Consultation</h3>
-          <p class="text-xs text-ayur-muted">Reschedule or cancel your confirmed appointment.</p>
-        </div>
+        <h3 class="font-serif text-xl font-bold text-ayur-dark">Manage Your Appointment</h3>
       </div>
+      <p class="text-xs text-ayur-muted mb-4">Enter your Confirmation ID or Phone Number to view, reschedule, or cancel your booking.</p>
 
-      <!-- Step A: Search for Booking -->
-      <div id="manage-search-section" class="mt-4 space-y-3">
-        <div>
-          <label class="block text-xs font-semibold text-ayur-dark mb-1">Confirmation ID or Phone Number</label>
-          <input type="text" id="manage-search-input" placeholder="e.g. AYUR-3C4F2A or +91 98220 12345" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-ayur-cream text-xs font-mono focus:ring-2 focus:ring-ayur-green focus:outline-none">
-        </div>
-        <button onclick="lookupBookingToManage()" class="w-full py-2.5 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2">
-          <i data-lucide="search" class="w-3.5 h-3.5"></i> Find My Consultation
+      <div class="space-y-3" id="manage-lookup-panel">
+        <input type="text" id="manage-lookup-query" placeholder="e.g. DMC-3C4F2A or 9822012345" class="w-full p-3 bg-ayur-cream border border-ayur-border rounded-xl text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none font-mono">
+        <button onclick="handleManageLookup()" class="w-full py-2.5 bg-ayur-forest hover:bg-ayur-green text-white rounded-xl text-xs font-semibold transition">
+          Find Appointment
         </button>
       </div>
 
-      <!-- Step B: Booking Details & Actions -->
-      <div id="manage-details-section" class="mt-4 space-y-4 hidden">
-        <div class="p-4 bg-ayur-cream rounded-2xl border border-ayur-border space-y-2 text-xs">
-          <div class="flex justify-between"><span class="text-ayur-muted">ID:</span><span class="font-bold font-mono" id="m-disp-id">--</span></div>
-          <div class="flex justify-between"><span class="text-ayur-muted">Patient:</span><span class="font-semibold" id="m-disp-name">--</span></div>
-          <div class="flex justify-between"><span class="text-ayur-muted">Current Slot:</span><span class="font-semibold text-ayur-forest" id="m-disp-slot">--</span></div>
-          <div class="flex justify-between"><span class="text-ayur-muted">Status:</span><span class="font-semibold text-emerald-700" id="m-disp-status">Confirmed</span></div>
+      <!-- Result Card -->
+      <div id="manage-details-card" class="mt-4 p-4 bg-ayur-card rounded-2xl border border-ayur-border hidden space-y-3">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-ayur-muted">ID: <strong id="m-res-id" class="text-ayur-dark font-mono">--</strong></span>
+          <span id="m-res-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Confirmed</span>
         </div>
+        <div class="text-xs font-semibold text-ayur-dark" id="m-res-name">--</div>
+        <div class="text-xs text-ayur-muted" id="m-res-datetime">--</div>
 
-        <!-- Reschedule Controls -->
-        <div id="manage-reschedule-form" class="space-y-3 pt-2 border-t border-ayur-border hidden">
-          <p class="text-xs font-bold text-ayur-dark">Select New Date &amp; Time:</p>
-          <input type="date" id="m-new-date" onchange="renderManageNewSlots()" class="w-full p-2.5 rounded-xl border border-ayur-border text-xs bg-ayur-cream">
-          <select id="m-new-slot" class="w-full p-2.5 rounded-xl border border-ayur-border text-xs bg-ayur-cream">
-            <option value="">Select an available slot...</option>
-          </select>
-          <div class="flex gap-2">
-            <button onclick="cancelManageRescheduleForm()" class="flex-1 py-2 text-xs text-ayur-muted">Back</button>
-            <button onclick="confirmRescheduleAppointment()" class="flex-1 py-2 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl">Save New Slot</button>
-          </div>
-        </div>
-
-        <div id="manage-action-buttons" class="flex gap-2">
-          <button onclick="showManageRescheduleForm()" class="flex-1 py-2.5 bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition">
-            <i data-lucide="clock" class="w-3.5 h-3.5"></i> Reschedule Slot
+        <div class="pt-2 border-t border-ayur-border/60 flex items-center gap-2">
+          <button onclick="cancelFoundAppointment()" class="flex-1 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition">
+            Cancel Booking
           </button>
-          <button onclick="cancelPatientAppointmentSelf()" class="flex-1 py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition">
-            <i data-lucide="calendar-x" class="w-3.5 h-3.5"></i> Cancel Slot
+          <button onclick="closeManageBookingModal()" class="flex-1 py-2 bg-ayur-forest text-white rounded-xl text-xs font-semibold transition">
+            Close
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <div id="payment-modal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 border border-ayur-border shadow-2xl relative text-center">
-      <div class="flex items-center justify-between pb-3 border-b border-ayur-border text-left">
-        <div class="flex items-center gap-2">
-          <span class="w-7 h-7 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">₹</span>
-          <div>
-            <h4 class="font-bold text-xs text-ayur-dark">Direct UPI Payment</h4>
-            <p class="text-[10px] text-ayur-muted">Zero Gateway Fees • Direct to Clinic</p>
-          </div>
-        </div>
-        <span class="text-[10px] bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">₹200 Deposit</span>
-      </div>
-
-      <div class="my-4 space-y-3">
-        <!-- Rendered QR Code -->
-        <div class="p-3 bg-white rounded-2xl border border-ayur-border flex flex-col items-center justify-center">
-          <div id="upi-qrcode-container" class="p-2 bg-white rounded-lg min-h-[140px] flex items-center justify-center"></div>
-          <p class="text-[11px] font-semibold text-ayur-dark mt-2">Scan with Google Pay, PhonePe, or Paytm</p>
-          <p class="text-[10px] font-mono text-ayur-muted mt-0.5">VPA: ayursutraclinic@okhdfcbank</p>
-        </div>
-
-        <!-- Mobile UPI Intent Deep Link Button -->
-        <a id="upi-intent-link" href="#" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition">
-          <i data-lucide="smartphone" class="w-4 h-4"></i> Tap to Pay via UPI App (Mobile)
-        </a>
-      </div>
-
-      <div class="flex gap-2 pt-1 border-t border-ayur-border">
-        <button onclick="cancelPaymentModal()" class="flex-1 py-2 text-xs font-semibold text-ayur-muted">Pay at Clinic</button>
-        <button onclick="completePaymentSimulation()" class="flex-1 py-2 bg-ayur-forest hover:bg-ayur-green text-white rounded-xl text-xs font-semibold">I have Paid ₹200</button>
-      </div>
-    </div>
+  <!-- Toast Notification System -->
+  <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none bg-ayur-dark text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-ayur-leaf/30 text-xs font-medium">
+    <i data-lucide="bell" class="w-4 h-4 text-ayur-leaf"></i>
+    <span id="toast-message">Notification message</span>
   </div>
 
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
   <script>
+    // ==========================================
+    // 1. CENTRAL CLINIC CONTACT & CONFIGURATION
+    // ==========================================
+    const CLINIC_CONFIG = {
+      doctorName: "Dr. Manasi Kulkarni",
+      qualifications: "BAMS, MD (Ayurveda Specialist)",
+      phoneDisplay: "+91 98220 12345",
+      // Pure numerical phone number without '+' or spaces for WhatsApp API
+      whatsappNumber: "919922603570",
+      address: "AyurSutra Clinic, Pune-Solapur Road, Saswad / Pune, Maharashtra"
+    };
+
+    // Supabase Live Cloud Integration Config
     const SUPABASE_CONFIG = {
       url: "https://hsljoystmikkrqvbtsvs.supabase.co",
       anonKey: "sb_publishable_qQ4bAVY25Xmj3qWMt-dcFg_cS26Uu33"
     };
 
     let supabaseClient = null;
-    let bookedSlotsCache = [];
-    let selectedBookingForManage = null;
-
-    // Date formatting helpers
-    function formatDateIso(d) {
-      if (!d || !(d instanceof Date) || isNaN(d)) d = new Date();
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-
-    function formatIsoToDisplay(isoStr) {
-      if (!isoStr) return '';
+    if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG.url) {
       try {
-        const parts = String(isoStr).split('T')[0].split('-');
-        if (parts.length >= 3) {
-          const y = parseInt(parts[0], 10);
-          const m = parseInt(parts[1], 10) - 1;
-          const d = parseInt(parts[2], 10);
-          const dateObj = new Date(y, m, d);
-          return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-        }
-      } catch (e) {}
-      return String(isoStr);
+        supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+      } catch (err) {
+        console.warn('Supabase initialization fallback to local storage:', err);
+      }
     }
 
-    // Default initial date (skip Sunday if today is Sunday)
-    const initialDateObj = new Date();
-    if (initialDateObj.getDay() === 0) initialDateObj.setDate(initialDateObj.getDate() + 1);
-    const initialIso = formatDateIso(initialDateObj);
-    const initialDisplay = formatIsoToDisplay(initialIso);
-
+    // ==========================================
+    // 2. CLINIC SCHEDULING & STATE MANAGEMENT
+    // ==========================================
     const morningSlots = ["10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM"];
-    const eveningSlots = ["04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM", "06:00 PM", "06:30 PM"];
+    const afternoonSlots = ["04:00 PM", "04:30 PM", "05:00 PM", "05:30 PM", "06:00 PM", "06:30 PM"];
 
     const bookingState = {
       step: 1,
-      selectedDateIso: initialIso,
-      selectedDateDisplay: initialDisplay,
+      selectedDateFormatted: null,
+      selectedDateIso: null,
       selectedTime: null,
       patientType: 'New patient',
       name: '',
       phone: '',
       email: '',
-      healthGoal: 'Panchakarma Detox',
-      depositPaid: false,
-      confirmationId: '',
-      prakritiAnswers: {}
+      healthGoal: 'General Nadi Pariksha Consultation',
+      confirmationId: ''
     };
 
-    function showToast(message, isSuccess = true) {
-      const container = document.getElementById('toast-container');
-      if (!container) return;
-      const toast = document.createElement('div');
-      toast.className = `toast-anim pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold border ${
-        isSuccess ? 'bg-ayur-forest text-white border-ayur-leaf/50' : 'bg-rose-900 text-white border-rose-400'
-      }`;
-      toast.innerHTML = `
-        <i data-lucide="${isSuccess ? 'check-circle' : 'alert-circle'}" class="w-4 h-4 ${isSuccess ? 'text-ayur-leaf' : 'text-rose-300'}"></i>
-        <span>${message}</span>
-      `;
-      container.appendChild(toast);
-      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.4s ease';
-        setTimeout(() => toast.remove(), 400);
-      }, 4000);
+    // Local Storage Fallback Cache
+    function getStoredAppointments() {
+      try {
+        return JSON.parse(localStorage.getItem('ayursutra_appointments')) || [];
+      } catch {
+        return [];
+      }
     }
 
-    function initSupabase() {
+    function saveStoredAppointments(list) {
       try {
-        if (window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
-          supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-          return true;
-        }
+        localStorage.setItem('ayursutra_appointments', JSON.stringify(list));
       } catch (e) {
-        console.warn("Supabase init error:", e);
-      }
-      return false;
-    }
-
-    async function fetchBookedSlots() {
-      if (!supabaseClient) return;
-      try {
-        // Query sanitized public view to protect patient privacy (DPDP Act)
-        const { data, error } = await supabaseClient
-          .from('public_booked_slots')
-          .select('date_iso, time_slot');
-
-        if (!error && Array.isArray(data)) {
-          bookedSlotsCache = data;
-          renderTimeSlots();
-        } else {
-          // Fallback to appointments table if view hasn't been created yet
-          const { data: apts } = await supabaseClient
-            .from('appointments')
-            .select('date_iso, time_slot, status')
-            .neq('status', 'Cancelled');
-          if (Array.isArray(apts)) {
-            bookedSlotsCache = apts;
-            renderTimeSlots();
-          }
-        }
-      } catch (err) {
-        console.warn("Fetch slots fallback:", err);
+        console.error(e);
       }
     }
 
-    function isSlotBooked(time, dateIso) {
-      return bookedSlotsCache.some(s => s.date_iso === dateIso && s.time_slot === time);
+    // ==========================================
+    // 3. WHATSAPP LINK GENERATOR WITH SAFE URI
+    // ==========================================
+    function getClinicWhatsAppUrl(customMessage) {
+      const cleanNumber = CLINIC_CONFIG.whatsappNumber.replace(/[^0-9]/g, '');
+      const encodedMsg = encodeURIComponent(customMessage);
+      return `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
     }
 
+    function updateContactButtons(confId, dateStr, timeStr) {
+      const callBtn = document.getElementById('btn-call-clinic');
+      const waBtn = document.getElementById('btn-whatsapp-clinic');
+
+      if (callBtn) {
+        callBtn.href = `tel:+${CLINIC_CONFIG.whatsappNumber}`;
+      }
+
+      if (waBtn) {
+        const msg = `Namaste Dr. Manasi, I have booked a consultation at AyurSutra Clinic.\n\n` +
+                    `Confirmation ID: ${confId}\n` +
+                    `Date: ${dateStr}\n` +
+                    `Time: ${timeStr}\n` +
+                    `Patient Name: ${bookingState.name}\n` +
+                    `Please share any pre-visit instructions.`;
+        waBtn.href = getClinicWhatsAppUrl(msg);
+      }
+    }
+
+    // ==========================================
+    // 4. DATE PICKER & 14-DAY CALENDAR ENGINE
+    // ==========================================
     function initBookingDates() {
       const grid = document.getElementById('calendar-days-grid');
       if (!grid) return;
       grid.innerHTML = '';
-      const baseDate = new Date();
+
+      const today = new Date();
+      let firstAvailableSelected = false;
 
       for (let i = 0; i < 14; i++) {
-        const dateObj = new Date(baseDate);
-        dateObj.setDate(baseDate.getDate() + i);
+        const d = new Date();
+        d.setDate(today.getDate() + i);
 
-        const iso = formatDateIso(dateObj);
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-        const dayNumber = dateObj.getDate();
-        const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
-        const dateFormatted = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const dateIso = `${year}-${month}-${day}`;
 
-        const isSunday = dateObj.getDay() === 0;
-        const isSelected = (iso === bookingState.selectedDateIso) && !isSunday;
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNumber = d.getDate();
+        const monthName = d.toLocaleDateString('en-US', { month: 'short' });
+        const dateFormatted = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+        const isSunday = d.getDay() === 0;
+        const isSelected = !firstAvailableSelected && !isSunday;
+
+        if (isSelected) {
+          bookingState.selectedDateIso = dateIso;
+          bookingState.selectedDateFormatted = dateFormatted;
+          firstAvailableSelected = true;
+        }
 
         const dateBtn = document.createElement('button');
         dateBtn.type = "button";
         dateBtn.disabled = isSunday;
+        dateBtn.dataset.dateIso = dateIso;
+        dateBtn.dataset.dateFormatted = dateFormatted;
+
         dateBtn.className = `p-3 rounded-2xl border text-center transition flex flex-col items-center justify-center gap-1 ${
-          isSunday ? 'opacity-40 cursor-not-allowed border-dashed border-ayur-border bg-stone-100' :
-          isSelected ? 'bg-ayur-forest text-white border-ayur-forest shadow-md ring-2 ring-ayur-green/30' :
-          'bg-white hover:border-ayur-green border-ayur-border text-ayur-dark'
+          isSunday
+            ? 'opacity-35 cursor-not-allowed border-dashed border-ayur-border bg-stone-100 text-ayur-muted'
+            : isSelected
+              ? 'bg-ayur-forest text-white border-ayur-forest shadow-md ring-2 ring-ayur-green/30'
+              : 'bg-white hover:border-ayur-green border-ayur-border text-ayur-dark'
         }`;
 
         dateBtn.innerHTML = `
           <span class="text-[10px] uppercase font-semibold tracking-wider ${isSelected ? 'text-ayur-leaf' : 'text-ayur-muted'}">${dayName}</span>
-          <span class="text-xl font-bold font-serif leading-none my-0.5">${dayNumber}</span>
+          <span class="text-lg font-bold font-serif leading-none my-0.5">${dayNumber}</span>
           <span class="text-[10px] ${isSelected ? 'text-ayur-cream/80' : 'text-ayur-muted'}">${isSunday ? 'Closed' : monthName}</span>
         `;
 
@@ -715,146 +603,139 @@
                 }
               }
             });
+
             dateBtn.className = 'p-3 rounded-2xl border text-center transition flex flex-col items-center justify-center gap-1 bg-ayur-forest text-white border-ayur-forest shadow-md ring-2 ring-ayur-green/30';
-            const spans = dateBtn.querySelectorAll('span');
-            if (spans.length >= 3) {
-              spans[0].className = 'text-[10px] uppercase font-semibold tracking-wider text-ayur-leaf';
-              spans[2].className = 'text-[10px] text-ayur-cream/80';
+            const activeSpans = dateBtn.querySelectorAll('span');
+            if (activeSpans.length >= 3) {
+              activeSpans[0].className = 'text-[10px] uppercase font-semibold tracking-wider text-ayur-leaf';
+              activeSpans[2].className = 'text-[10px] text-ayur-cream/80';
             }
-            bookingState.selectedDateIso = iso;
-            bookingState.selectedDateDisplay = dateFormatted;
-            bookingState.selectedTime = null;
+
+            bookingState.selectedDateIso = dateIso;
+            bookingState.selectedDateFormatted = dateFormatted;
+            bookingState.selectedTime = null; // Reset slot on date change
             renderTimeSlots();
           };
         }
+
         grid.appendChild(dateBtn);
       }
     }
 
-    function renderTimeSlots() {
-      const morningGrid = document.getElementById('morning-slots-grid');
-      const eveningGrid = document.getElementById('evening-slots-grid');
-      if (!morningGrid || !eveningGrid) return;
-      morningGrid.innerHTML = '';
-      eveningGrid.innerHTML = '';
+    // ==========================================
+    // 5. TIMESLOT RENDERING WITH COLLISION CHECK
+    // ==========================================
+    function isSlotBooked(time) {
+      if (!bookingState.selectedDateIso) return false;
+      const allAppts = getStoredAppointments();
+      return allAppts.some(a =>
+        a.date_iso === bookingState.selectedDateIso &&
+        a.time_slot === time &&
+        a.status !== 'Cancelled'
+      );
+    }
 
-      const createSlotBtn = (time, isMorning = false) => {
-        const isTaken = isSlotBooked(time, bookingState.selectedDateIso);
-        const isSelected = bookingState.selectedTime === time;
+    function renderTimeSlots() {
+      const morningBox = document.getElementById('morning-slots-grid');
+      const afternoonBox = document.getElementById('afternoon-slots-grid');
+      if (!morningBox || !afternoonBox) return;
+
+      morningBox.innerHTML = '';
+      afternoonBox.innerHTML = '';
+
+      const makeSlotButton = (slotText) => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.disabled = isTaken;
+        const booked = isSlotBooked(slotText);
+        const selected = bookingState.selectedTime === slotText;
 
-        btn.className = `py-2.5 px-3 rounded-xl text-xs font-semibold tracking-wide border transition text-center relative ${
-          isTaken
-            ? 'opacity-40 cursor-not-allowed bg-stone-100 border-ayur-border text-stone-400 line-through'
-            : isSelected
-              ? 'bg-ayur-forest text-white border-ayur-forest shadow-sm'
-              : 'bg-white hover:bg-ayur-mist border-ayur-border text-ayur-dark hover:border-ayur-sage'
-        }`;
-
-        btn.innerHTML = isTaken ? `${time} (Booked)` : `${time} ${isMorning ? '<span class="text-[9px] block text-ayur-leaf font-normal">Nadi Ideal</span>' : ''}`;
-        if (!isTaken) {
+        if (booked) {
+          btn.disabled = true;
+          btn.className = "py-2.5 px-3 rounded-full text-xs font-medium border border-dashed border-ayur-border bg-stone-100 text-stone-400 cursor-not-allowed flex items-center justify-center gap-1";
+          btn.innerHTML = `<span class="line-through">${slotText}</span> <span class="text-[9px] uppercase">(Booked)</span>`;
+        } else if (selected) {
+          btn.className = "py-2.5 px-3 rounded-full text-xs font-semibold border bg-ayur-forest text-white border-ayur-forest shadow-sm";
+          btn.innerText = slotText;
+        } else {
+          btn.className = "py-2.5 px-3 rounded-full text-xs font-semibold border bg-white hover:bg-ayur-mist border-ayur-border text-ayur-dark hover:border-ayur-sage transition";
+          btn.innerText = slotText;
           btn.onclick = () => {
-            bookingState.selectedTime = time;
+            bookingState.selectedTime = slotText;
             renderTimeSlots();
           };
         }
         return btn;
       };
 
-      morningSlots.forEach(s => morningGrid.appendChild(createSlotBtn(s, true)));
-      eveningSlots.forEach(s => eveningGrid.appendChild(createSlotBtn(s, false)));
+      morningSlots.forEach(s => morningBox.appendChild(makeSlotButton(s)));
+      afternoonSlots.forEach(s => afternoonBox.appendChild(makeSlotButton(s)));
     }
 
+    // ==========================================
+    // 6. PATIENT TYPE TOGGLE
+    // ==========================================
     function setPatientType(type) {
       bookingState.patientType = type;
       const btnNew = document.getElementById('btn-patient-new');
       const btnRet = document.getElementById('btn-patient-returning');
+      if (!btnNew || !btnRet) return;
+
       if (type === 'New patient') {
-        btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white shadow-sm transition";
-        btnRet.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-ayur-dark hover:text-ayur-green transition";
+        btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-medium bg-ayur-forest text-white shadow-sm transition";
+        btnRet.className = "px-4 py-1.5 rounded-lg text-xs font-medium text-ayur-dark hover:text-ayur-green transition";
       } else {
-        btnRet.className = "px-4 py-1.5 rounded-lg text-xs font-semibold bg-ayur-forest text-white shadow-sm transition";
-        btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-ayur-dark hover:text-ayur-green transition";
+        btnRet.className = "px-4 py-1.5 rounded-lg text-xs font-medium bg-ayur-forest text-white shadow-sm transition";
+        btnNew.className = "px-4 py-1.5 rounded-lg text-xs font-medium text-ayur-dark hover:text-ayur-green transition";
       }
     }
 
-    function selectHealthGoal(btn, goal) {
-      bookingState.healthGoal = goal;
-      document.querySelectorAll('.goal-chip').forEach(el => {
-        el.className = "goal-chip px-3 py-1.5 rounded-xl border border-ayur-border bg-white text-xs font-medium text-ayur-dark hover:border-ayur-green transition";
-      });
-      btn.className = "goal-chip px-3 py-1.5 rounded-xl border border-ayur-forest bg-ayur-forest text-white text-xs font-semibold shadow-sm transition";
-    }
-
-    function togglePrakritiSection() {
-      const q = document.getElementById('prakriti-questions');
-      const chev = document.getElementById('prakriti-chevron');
-      if (!q || !chev) return;
-      if (q.classList.contains('hidden')) {
-        q.classList.remove('hidden');
-        chev.classList.add('rotate-180');
-      } else {
-        q.classList.add('hidden');
-        chev.classList.remove('rotate-180');
-      }
-    }
-
+    // ==========================================
+    // 7. WIZARD STEP NAVIGATION & VALIDATION
+    // ==========================================
     function navigateWizard(delta) {
       const current = bookingState.step;
 
       if (delta === 1) {
         if (current === 1 && !bookingState.selectedDateIso) {
-          showToast('Please select an appointment date.', false);
+          showToast('Please select a consultation date.');
           return;
         }
-        if (current === 2 && !bookingState.selectedTime) {
-          showToast('Please select a preferred time slot.', false);
-          return;
+        if (current === 2) {
+          if (!bookingState.selectedTime) {
+            showToast('Please choose an available 30-minute time slot.');
+            return;
+          }
         }
         if (current === 3) {
-          const name = (document.getElementById('cust-name')?.value || '').trim();
-          const phone = (document.getElementById('cust-phone')?.value || '').trim();
-          const consent = document.getElementById('consent-dpdp')?.checked;
+          const nameVal = document.getElementById('cust-name').value.trim();
+          const phoneVal = document.getElementById('cust-phone').value.trim();
+          const emailVal = document.getElementById('cust-email').value.trim();
+          const goalVal = document.getElementById('cust-goal').value;
 
-          if (!name || !phone) {
-            showToast('Please provide your Full Name and Contact Phone.', false);
+          if (!nameVal || !phoneVal) {
+            showToast('Please provide your Full Name and Phone Number.');
             return;
           }
-          if (phone.length < 8) {
-            showToast('Please provide a valid phone number.', false);
-            return;
-          }
-          if (!consent) {
-            showToast('Please accept the DPDP data storage consent to continue.', false);
+          if (phoneVal.length < 10) {
+            showToast('Please enter a valid 10-digit mobile number.');
             return;
           }
 
-          bookingState.name = name;
-          bookingState.phone = phone;
-          bookingState.email = (document.getElementById('cust-email')?.value || '').trim();
-          bookingState.prakritiAnswers = {
-            appetite: document.getElementById('pr-appetite')?.value || '',
-            sleep: document.getElementById('pr-sleep')?.value || '',
-            stress: document.getElementById('pr-stress')?.value || ''
-          };
+          bookingState.name = nameVal;
+          bookingState.phone = phoneVal;
+          bookingState.email = emailVal;
+          bookingState.healthGoal = goalVal;
 
-          const isDepositChecked = document.getElementById('deposit-toggle-checkbox')?.checked;
-          document.getElementById('summary-date').innerText = bookingState.selectedDateDisplay;
+          // Populate Step 4 review
+          document.getElementById('summary-date').innerText = bookingState.selectedDateFormatted;
           document.getElementById('summary-time').innerText = bookingState.selectedTime;
           document.getElementById('summary-name').innerText = bookingState.name;
           document.getElementById('summary-phone').innerText = bookingState.phone;
-          document.getElementById('summary-health-goal').innerText = bookingState.healthGoal;
-          document.getElementById('summary-deposit-status').innerText = isDepositChecked ? '₹200 UPI Deposit Pre-paid' : 'Pay at Clinic (₹800)';
-
-          if (isDepositChecked && !bookingState.depositPaid) {
-            openUpiPaymentModal();
-            return;
-          }
+          document.getElementById('summary-goal').innerText = bookingState.healthGoal;
+          document.getElementById('summary-type').innerText = bookingState.patientType;
         }
         if (current === 4) {
-          executeFinalBooking();
+          commitAppointmentBooking();
           return;
         }
       }
@@ -865,328 +746,249 @@
 
     function updateWizardUI() {
       const step = bookingState.step;
+
       [1, 2, 3, 4].forEach(s => {
-        const el = document.getElementById(`step-content-${s}`);
-        if (el) el.classList.add('hidden');
+        const pane = document.getElementById(`step-content-${s}`);
+        if (pane) pane.classList.add('hidden');
       });
-      document.getElementById('step-content-success')?.classList.add('hidden');
-      document.getElementById(`step-content-${step}`)?.classList.remove('hidden');
+      const successPane = document.getElementById('step-content-success');
+      if (successPane) successPane.classList.add('hidden');
+
+      const activePane = document.getElementById(`step-content-${step}`);
+      if (activePane) activePane.classList.remove('hidden');
 
       if (step === 2) {
-        document.getElementById('selected-date-banner').innerText = `Selected Date: ${bookingState.selectedDateDisplay}`;
+        document.getElementById('selected-date-banner').innerText = `Selected Date: ${bookingState.selectedDateFormatted}`;
+        renderTimeSlots();
       }
 
+      // Left-side step pills
       for (let s = 1; s <= 4; s++) {
-        const nav = document.getElementById(`step-nav-${s}`);
-        if (!nav) continue;
-        const badge = nav.querySelector('span:first-child');
+        const navEl = document.getElementById(`step-nav-${s}`);
+        if (!navEl) continue;
+        const badge = navEl.querySelector('span:first-child');
         if (s === step) {
-          nav.className = "flex items-center gap-3.5 text-white";
-          if (badge) badge.className = "w-7 h-7 rounded-full bg-ayur-sage text-ayur-dark flex items-center justify-center text-xs font-bold ring-4 ring-ayur-sage/20";
+          navEl.className = "flex items-center gap-3 text-white";
+          badge.className = "w-7 h-7 rounded-full bg-ayur-sage text-ayur-dark flex items-center justify-center text-xs font-bold ring-4 ring-ayur-sage/20";
         } else if (s < step) {
-          nav.className = "flex items-center gap-3.5 text-ayur-leaf";
-          if (badge) badge.className = "w-7 h-7 rounded-full bg-ayur-leaf text-ayur-dark flex items-center justify-center text-xs font-bold";
+          navEl.className = "flex items-center gap-3 text-ayur-leaf";
+          badge.className = "w-7 h-7 rounded-full bg-ayur-leaf text-ayur-dark flex items-center justify-center text-xs font-bold";
         } else {
-          nav.className = "flex items-center gap-3.5 text-ayur-card/50";
-          if (badge) badge.className = "w-7 h-7 rounded-full bg-ayur-dark/70 border border-ayur-card/30 flex items-center justify-center text-xs font-bold";
+          navEl.className = "flex items-center gap-3 text-ayur-card/60";
+          badge.className = "w-7 h-7 rounded-full bg-ayur-dark/70 border border-ayur-card/30 flex items-center justify-center text-xs font-bold";
         }
       }
 
       const btnBack = document.getElementById('btn-wizard-back');
       const btnNext = document.getElementById('btn-wizard-next');
-      if (btnBack) {
-        btnBack.disabled = (step === 1);
-        btnBack.classList.toggle('opacity-50', step === 1);
-        btnBack.classList.toggle('cursor-not-allowed', step === 1);
+
+      if (step === 1) {
+        btnBack.disabled = true;
+        btnBack.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        btnBack.disabled = false;
+        btnBack.classList.remove('opacity-50', 'cursor-not-allowed');
       }
-      if (btnNext) {
-        if (step === 4) {
-          btnNext.innerHTML = `Confirm Consultation <i data-lucide="check" class="w-4 h-4"></i>`;
-          btnNext.className = "px-6 py-2.5 rounded-xl bg-ayur-green hover:bg-ayur-forest text-white text-xs font-semibold flex items-center gap-2 shadow-md transition";
-        } else {
-          btnNext.innerHTML = `Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
-          btnNext.className = "px-6 py-2.5 rounded-xl bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold flex items-center gap-2 shadow-md transition";
-        }
+
+      if (step === 4) {
+        btnNext.innerHTML = `Confirm Booking <i data-lucide="check" class="w-4 h-4"></i>`;
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-ayur-green hover:bg-ayur-forest text-white text-xs font-semibold flex items-center gap-2 shadow-md transition";
+      } else {
+        btnNext.innerHTML = `Continue <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold flex items-center gap-2 shadow-md transition";
       }
-      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+      lucide.createIcons();
     }
 
-    async function executeFinalBooking() {
+    // ==========================================
+    // 8. FINAL COMMITMENT & SUPABASE CLOUD SYNC
+    // ==========================================
+    async function commitAppointmentBooking() {
       const btnNext = document.getElementById('btn-wizard-next');
-      if (btnNext) {
-        btnNext.disabled = true;
-        btnNext.innerHTML = `<span class="inline-block animate-spin mr-1">↻</span> Securing slot...`;
-      }
+      btnNext.disabled = true;
+      btnNext.innerText = "Confirming slot...";
 
-      const randomHex = Math.random().toString(16).substring(2, 8).toUpperCase();
-      const confId = `AYUR-${randomHex}`;
-      bookingState.confirmationId = confId;
+      // Generate unique confirmation ID
+      const randomId = 'AYUR-' + Math.random().toString(36).substring(2, 7).toUpperCase();
+      bookingState.confirmationId = randomId;
 
       const newRecord = {
-        id: confId,
+        id: randomId,
         date_iso: bookingState.selectedDateIso,
         time_slot: bookingState.selectedTime,
         patient_name: bookingState.name,
         patient_phone: bookingState.phone,
         patient_type: bookingState.patientType,
         health_goal: bookingState.healthGoal,
-        status: 'Confirmed',
-        deposit_paid: bookingState.depositPaid,
-        emr_notes: `Self-Intake: ${bookingState.prakritiAnswers.appetite || 'Normal Agni'}, ${bookingState.prakritiAnswers.sleep || 'Normal Sleep'}.`
+        status: 'Confirmed'
       };
 
+      // 1. Save to local fallback cache
+      const stored = getStoredAppointments();
+      stored.unshift(newRecord);
+      saveStoredAppointments(stored);
+
+      // 2. Synchronize to Supabase if configured
       if (supabaseClient) {
         try {
           const { error } = await supabaseClient.from('appointments').insert([newRecord]);
-          if (error) {
-            if (error.code === '23505') {
-              showToast('That slot was just reserved by another patient. Please choose another time.', false);
-              if (btnNext) btnNext.disabled = false;
-              bookingState.step = 2;
-              updateWizardUI();
-              return;
-            }
+          if (error && error.code === '23505') {
+            showToast('Slot was just reserved by another patient. Please choose another slot.');
+            btnNext.disabled = false;
+            bookingState.step = 2;
+            updateWizardUI();
+            return;
           }
-          // Also register patient profile
-          await supabaseClient.from('patients').upsert({
-            name: newRecord.patient_name,
-            phone: newRecord.patient_phone,
-            email: bookingState.email || null,
-            last_visit: bookingState.selectedDateDisplay,
-            prakriti: bookingState.prakritiAnswers.appetite ? 'Dosha Intake Submitted' : 'Pending Assessment'
-          }, { onConflict: 'phone' });
         } catch (err) {
-          console.warn("Direct save fallback:", err);
+          console.warn('Supabase sync skipped, stored locally:', err);
         }
       }
 
-      // Add to local cache
-      bookedSlotsCache.push({ date_iso: newRecord.date_iso, time_slot: newRecord.time_slot });
+      // 3. Render success screen
+      setTimeout(() => {
+        document.getElementById('step-content-4').classList.add('hidden');
+        document.getElementById('wizard-navigation-bar').classList.add('hidden');
 
-      document.getElementById('step-content-4')?.classList.add('hidden');
-      document.getElementById('wizard-navigation-bar')?.classList.add('hidden');
-      document.getElementById('step-content-success')?.classList.remove('hidden');
+        const successScreen = document.getElementById('step-content-success');
+        successScreen.classList.remove('hidden');
 
-      document.getElementById('success-id').innerText = confId;
-      document.getElementById('success-datetime').innerText = `${bookingState.selectedDateDisplay} at ${bookingState.selectedTime}`;
+        document.getElementById('success-id').innerText = randomId;
+        document.getElementById('success-datetime').innerText = `${bookingState.selectedDateFormatted} at ${bookingState.selectedTime}`;
 
-      // Build personalized WhatsApp prefill link
-      const waMsg = encodeURIComponent(
-        `Namaste AyurSutra Clinic,\nAppointment Booked: ${confId}\nDate: ${bookingState.selectedDateDisplay}\nTime: ${bookingState.selectedTime}\nPatient: ${bookingState.name}\n\n*Nadi Pariksha Rule:* Fasting or 2.5 hrs post-meal.\nManage Link: ${window.location.origin}${window.location.pathname}?manage=${confId}`
-      );
-      document.getElementById('btn-success-whatsapp').href = `https://wa.me/919876543210?text=${waMsg}`;
+        // Update active call & WhatsApp messaging links
+        updateContactButtons(randomId, bookingState.selectedDateFormatted, bookingState.selectedTime);
 
-      showToast(`Consultation registered: ${confId}`);
-      if (btnNext) btnNext.disabled = false;
-      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
-    }
-
-    function openUpiPaymentModal() {
-      const upiUrl = `upi://pay?pa=ayursutraclinic@okhdfcbank&pn=AyurSutraClinic&am=200&cu=INR&tn=ConsultationDeposit`;
-      const qrBox = document.getElementById('upi-qrcode-container');
-      if (qrBox) {
-        qrBox.innerHTML = '';
-        if (window.QRCode) {
-          try {
-            new QRCode(qrBox, { text: upiUrl, width: 140, height: 140, colorDark: "#112217", colorLight: "#ffffff" });
-          } catch (e) {
-            qrBox.innerHTML = '<span class="text-xs text-ayur-muted">Scan via UPI App</span>';
-          }
-        }
-      }
-      document.getElementById('upi-intent-link').href = upiUrl;
-      document.getElementById('payment-modal')?.classList.remove('hidden');
-    }
-
-    function completePaymentSimulation() {
-      document.getElementById('payment-modal')?.classList.add('hidden');
-      bookingState.depositPaid = true;
-      document.getElementById('summary-deposit-status').innerText = '₹200 Direct UPI Pre-paid (Verified)';
-      showToast('UPI payment verified!');
-      bookingState.step = 4;
-      updateWizardUI();
-    }
-
-    function cancelPaymentModal() {
-      document.getElementById('payment-modal')?.classList.add('hidden');
-      document.getElementById('deposit-toggle-checkbox').checked = false;
-      bookingState.depositPaid = false;
-      document.getElementById('summary-deposit-status').innerText = 'Pay at Clinic (₹800)';
-      bookingState.step = 4;
-      updateWizardUI();
-    }
-
-    function downloadCalendarFile() {
-      const title = `Ayurvedic Consultation with Dr. Manasi`;
-      const desc = `Consultation ID: ${bookingState.confirmationId}. Fasting required 2.5 hrs prior. Location: AyurSutra Clinic, MG Road.`;
-      const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AyurSutra Clinic//EN\nBEGIN:VEVENT\nSUMMARY:${title}\nDESCRIPTION:${desc}\nLOCATION:AyurSutra Clinic, MG Road\nSTATUS:CONFIRMED\nEND:VEVENT\nEND:VCALENDAR`;
-      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.setAttribute('download', `consultation-${bookingState.confirmationId}.ics`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('Calendar (.ics) invite downloaded!');
+        showToast('Appointment successfully scheduled!');
+        lucide.createIcons();
+      }, 500);
     }
 
     function resetBookingWizard() {
       bookingState.step = 1;
       bookingState.selectedTime = null;
-      bookingState.depositPaid = false;
       document.getElementById('cust-name').value = '';
       document.getElementById('cust-phone').value = '';
       document.getElementById('cust-email').value = '';
-      document.getElementById('deposit-toggle-checkbox').checked = false;
-      document.getElementById('wizard-navigation-bar')?.classList.remove('hidden');
-      initBookingDates();
-      renderTimeSlots();
+      document.getElementById('wizard-navigation-bar').classList.remove('hidden');
       updateWizardUI();
     }
 
+    // ==========================================
+    // 9. CALENDAR (.ICS) INVITATION GENERATOR
+    // ==========================================
+    function downloadCalendarInvite() {
+      if (!bookingState.selectedDateIso || !bookingState.selectedTime) return;
+
+      const dateClean = bookingState.selectedDateIso.replace(/-/g, '');
+      const icsContent = 
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//AyurSutra Clinic//Appointment Booking//EN
+BEGIN:VEVENT
+SUMMARY:Ayurvedic Consultation with Dr. Manasi Kulkarni
+DESCRIPTION:AyurSutra Consultation (${bookingState.healthGoal}). Confirmation ID: ${bookingState.confirmationId}. Location: ${CLINIC_CONFIG.address}
+LOCATION:${CLINIC_CONFIG.address}
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.setAttribute('download', `AyurSutra-Appointment-${bookingState.confirmationId}.ics`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // ==========================================
+    // 10. PATIENT SELF-SERVICE MODAL LOGIC
+    // ==========================================
     function openManageBookingModal() {
-      document.getElementById('manage-booking-modal')?.classList.remove('hidden');
-      document.getElementById('manage-search-section')?.classList.remove('hidden');
-      document.getElementById('manage-details-section')?.classList.add('hidden');
-      document.getElementById('manage-reschedule-form')?.classList.add('hidden');
-      document.getElementById('manage-action-buttons')?.classList.remove('hidden');
-      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+      document.getElementById('manage-modal').classList.remove('hidden');
     }
 
     function closeManageBookingModal() {
-      document.getElementById('manage-booking-modal')?.classList.add('hidden');
-      selectedBookingForManage = null;
+      document.getElementById('manage-modal').classList.add('hidden');
+      document.getElementById('manage-details-card').classList.add('hidden');
+      document.getElementById('manage-lookup-query').value = '';
     }
 
-    async function lookupBookingToManage() {
-      const query = (document.getElementById('manage-search-input')?.value || '').trim();
-      if (!query) {
-        showToast('Please enter your Confirmation ID or Phone Number.', false);
+    let foundAppointment = null;
+    function handleManageLookup() {
+      const q = document.getElementById('manage-lookup-query').value.trim().toUpperCase();
+      if (!q) {
+        showToast('Please enter your confirmation code or phone number.');
         return;
       }
 
-      if (!supabaseClient) {
-        showToast('Database connection unavailable.', false);
+      const list = getStoredAppointments();
+      foundAppointment = list.find(a =>
+        a.id.toUpperCase() === q ||
+        a.patient_phone.replace(/[^0-9]/g, '').includes(q.replace(/[^0-9]/g, ''))
+      );
+
+      if (!foundAppointment) {
+        showToast('No active appointment found for that reference.');
         return;
       }
 
-      try {
-        const { data, error } = await supabaseClient
-          .from('appointments')
-          .select('*')
-          .or(`id.ilike.%${query}%,patient_phone.ilike.%${query}%`)
-          .limit(1);
-
-        if (error || !data || data.length === 0) {
-          showToast('No booking found matching that reference.', false);
-          return;
-        }
-
-        selectedBookingForManage = data[0];
-        document.getElementById('m-disp-id').innerText = selectedBookingForManage.id;
-        document.getElementById('m-disp-name').innerText = selectedBookingForManage.patient_name;
-        document.getElementById('m-disp-slot').innerText = `${selectedBookingForManage.date_iso} at ${selectedBookingForManage.time_slot}`;
-        document.getElementById('m-disp-status').innerText = selectedBookingForManage.status;
-
-        document.getElementById('manage-search-section')?.classList.add('hidden');
-        document.getElementById('manage-details-section')?.classList.remove('hidden');
-        document.getElementById('m-new-date').value = selectedBookingForManage.date_iso;
-        renderManageNewSlots();
-      } catch (err) {
-        showToast('Search query failed: ' + err.message, false);
-      }
+      document.getElementById('m-res-id').innerText = foundAppointment.id;
+      document.getElementById('m-res-status').innerText = foundAppointment.status;
+      document.getElementById('m-res-name').innerText = foundAppointment.patient_name;
+      document.getElementById('m-res-datetime').innerText = `${foundAppointment.date_iso} at ${foundAppointment.time_slot}`;
+      document.getElementById('manage-details-card').classList.remove('hidden');
     }
 
-    function showManageRescheduleForm() {
-      document.getElementById('manage-reschedule-form')?.classList.remove('hidden');
-      document.getElementById('manage-action-buttons')?.classList.add('hidden');
-    }
+    async function cancelFoundAppointment() {
+      if (!foundAppointment) return;
+      if (!confirm('Are you sure you want to cancel this appointment slot?')) return;
 
-    function cancelManageRescheduleForm() {
-      document.getElementById('manage-reschedule-form')?.classList.add('hidden');
-      document.getElementById('manage-action-buttons')?.classList.remove('hidden');
-    }
-
-    function renderManageNewSlots() {
-      const dateVal = document.getElementById('m-new-date')?.value;
-      const select = document.getElementById('m-new-slot');
-      if (!dateVal || !select) return;
-      select.innerHTML = '';
-      [...morningSlots, ...eveningSlots].forEach(slot => {
-        if (!isSlotBooked(slot, dateVal)) {
-          const opt = document.createElement('option');
-          opt.value = slot;
-          opt.innerText = slot;
-          select.appendChild(opt);
-        }
-      });
-    }
-
-    async function confirmRescheduleAppointment() {
-      if (!selectedBookingForManage || !supabaseClient) return;
-      const newDate = document.getElementById('m-new-date')?.value;
-      const newSlot = document.getElementById('m-new-slot')?.value;
-
-      if (!newDate || !newSlot) {
-        showToast('Please pick an available date and timeslot.', false);
-        return;
+      const list = getStoredAppointments();
+      const idx = list.findIndex(a => a.id === foundAppointment.id);
+      if (idx !== -1) {
+        list[idx].status = 'Cancelled';
+        saveStoredAppointments(list);
       }
 
-      try {
-        const { error } = await supabaseClient
-          .from('appointments')
-          .update({ date_iso: newDate, time_slot: newSlot })
-          .eq('id', selectedBookingForManage.id);
-
-        if (error) {
-          showToast('Failed to reschedule: ' + error.message, false);
-          return;
-        }
-
-        showToast(`Consultation successfully rescheduled to ${newDate} at ${newSlot}!`);
-        closeManageBookingModal();
-        fetchBookedSlots();
-      } catch (err) {
-        showToast(err.message, false);
+      if (supabaseClient) {
+        await supabaseClient.from('appointments').update({ status: 'Cancelled' }).eq('id', foundAppointment.id);
       }
+
+      showToast('Appointment successfully cancelled.');
+      closeManageBookingModal();
+      renderTimeSlots();
     }
 
-    async function cancelPatientAppointmentSelf() {
-      if (!selectedBookingForManage || !supabaseClient) return;
-      try {
-        const { error } = await supabaseClient
-          .from('appointments')
-          .update({ status: 'Cancelled' })
-          .eq('id', selectedBookingForManage.id);
+    // ==========================================
+    // 11. TOAST NOTIFICATION UTILITY
+    // ==========================================
+    let toastTimeout = null;
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      const text = document.getElementById('toast-message');
+      if (!toast || !text) return;
 
-        if (error) {
-          showToast('Failed to cancel: ' + error.message, false);
-          return;
-        }
+      text.innerText = msg;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
 
-        showToast(`Consultation ${selectedBookingForManage.id} has been cancelled.`);
-        closeManageBookingModal();
-        fetchBookedSlots();
-      } catch (err) {
-        showToast(err.message, false);
-      }
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    // ==========================================
+    // 12. INITIALIZATION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
       initBookingDates();
       renderTimeSlots();
-      initSupabase();
-      fetchBookedSlots();
-      if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
-
-      // Check URL query parameters for ?manage=AYUR-...
-      const params = new URLSearchParams(window.location.search);
-      const manageToken = params.get('manage');
-      if (manageToken) {
-        document.getElementById('manage-search-input').value = manageToken;
-        openManageBookingModal();
-        lookupBookingToManage();
-      }
+      // Setup initial WhatsApp link
+      updateContactButtons('INQUIRY', 'Upcoming', 'Consultation');
     });
   </script>
 </body>

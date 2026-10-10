@@ -257,7 +257,7 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-ayur-dark mb-1">Phone Number <span class="text-rose-600">*</span></label>
-                <input type="tel" id="cust-phone" placeholder="e.g. 9822012345" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-sm focus:ring-2 focus:ring-ayur-green focus:outline-none">
+                <input type="tel" id="cust-phone" placeholder="e.g. 9922603570" class="w-full px-3.5 py-2.5 rounded-xl border border-ayur-border bg-white text-sm focus:ring-2 focus:ring-ayur-green focus:outline-none">
               </div>
             </div>
 
@@ -359,14 +359,14 @@
             </div>
           </div>
 
-          <!-- Primary Contact & Messaging Buttons -->
+          <!-- Primary Contact & Messaging Buttons (Updated for 9922603570) -->
           <div class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto pt-2">
             <a id="btn-call-clinic" href="tel:+919922603570" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-ayur-forest hover:bg-ayur-green text-white text-xs font-semibold shadow-sm transition">
               <i data-lucide="phone-call" class="w-4 h-4"></i> Call Clinic
             </a>
-            <a id="btn-whatsapp-clinic" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
+            <button id="btn-whatsapp-clinic" onclick="openClinicWhatsApp()" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold shadow-sm transition">
               <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Us
-            </a>
+            </button>
           </div>
 
           <div class="flex items-center justify-center gap-4 text-xs pt-1">
@@ -411,7 +411,7 @@
       <p class="text-xs text-ayur-muted mb-4">Enter your Confirmation ID or Phone Number to view, reschedule, or cancel your booking.</p>
 
       <div class="space-y-3" id="manage-lookup-panel">
-        <input type="text" id="manage-lookup-query" placeholder="e.g. DMC-3C4F2A or 9822012345" class="w-full p-3 bg-ayur-cream border border-ayur-border rounded-xl text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none font-mono">
+        <input type="text" id="manage-lookup-query" placeholder="e.g. AYUR-3C4F2 or 9922603570" class="w-full p-3 bg-ayur-cream border border-ayur-border rounded-xl text-xs focus:ring-2 focus:ring-ayur-green focus:outline-none font-mono">
         <button onclick="handleManageLookup()" class="w-full py-2.5 bg-ayur-forest hover:bg-ayur-green text-white rounded-xl text-xs font-semibold transition">
           Find Appointment
         </button>
@@ -452,8 +452,8 @@
     const CLINIC_CONFIG = {
       doctorName: "Dr. Manasi Kulkarni",
       qualifications: "BAMS, MD (Ayurveda Specialist)",
-      phoneDisplay: "+91 98220 12345",
-      // Pure numerical phone number without '+' or spaces for WhatsApp API
+      phoneDisplay: "+91 99226 03570",
+      // Real WhatsApp number for Dr. Manasi Kulkarni's clinic (with India country code 91)
       whatsappNumber: "919922603570",
       address: "AyurSutra Clinic, Pune-Solapur Road, Saswad / Pune, Maharashtra"
     };
@@ -510,30 +510,35 @@
     }
 
     // ==========================================
-    // 3. WHATSAPP LINK GENERATOR WITH SAFE URI
+    // 3. WHATSAPP ENGINE (DIRECT CHAT DISPATCH)
     // ==========================================
-    function getClinicWhatsAppUrl(customMessage) {
-      const cleanNumber = CLINIC_CONFIG.whatsappNumber.replace(/[^0-9]/g, '');
-      const encodedMsg = encodeURIComponent(customMessage);
-      return `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
+    function openClinicWhatsApp() {
+      const phone = CLINIC_CONFIG.whatsappNumber;
+      const confId = bookingState.confirmationId || 'PENDING';
+      const dateStr = bookingState.selectedDateFormatted || 'Upcoming';
+      const timeStr = bookingState.selectedTime || 'Clinic Slot';
+      const patientName = bookingState.name || 'Patient';
+      const healthGoal = bookingState.healthGoal || 'Nadi Pariksha';
+
+      const msg = `Namaste Dr. Manasi,\n\n` +
+                  `I have scheduled a consultation at AyurSutra Clinic.\n\n` +
+                  `*Confirmation ID:* ${confId}\n` +
+                  `*Date:* ${dateStr}\n` +
+                  `*Time Slot:* ${timeStr}\n` +
+                  `*Patient Name:* ${patientName}\n` +
+                  `*Clinical Focus:* ${healthGoal}\n\n` +
+                  `Please confirm receipt and share pre-visit fasting instructions for Nadi Pariksha.`;
+
+      const encodedMsg = encodeURIComponent(msg);
+      // api.whatsapp.com is universal across iOS, Android, Windows app, and WhatsApp Web
+      const targetUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMsg}`;
+      window.open(targetUrl, '_blank');
     }
 
     function updateContactButtons(confId, dateStr, timeStr) {
       const callBtn = document.getElementById('btn-call-clinic');
-      const waBtn = document.getElementById('btn-whatsapp-clinic');
-
       if (callBtn) {
         callBtn.href = `tel:+${CLINIC_CONFIG.whatsappNumber}`;
-      }
-
-      if (waBtn) {
-        const msg = `Namaste Dr. Manasi, I have booked a consultation at AyurSutra Clinic.\n\n` +
-                    `Confirmation ID: ${confId}\n` +
-                    `Date: ${dateStr}\n` +
-                    `Time: ${timeStr}\n` +
-                    `Patient Name: ${bookingState.name}\n` +
-                    `Please share any pre-visit instructions.`;
-        waBtn.href = getClinicWhatsAppUrl(msg);
       }
     }
 
@@ -879,7 +884,6 @@
     function downloadCalendarInvite() {
       if (!bookingState.selectedDateIso || !bookingState.selectedTime) return;
 
-      const dateClean = bookingState.selectedDateIso.replace(/-/g, '');
       const icsContent = 
 `BEGIN:VCALENDAR
 VERSION:2.0
@@ -987,9 +991,9 @@ END:VCALENDAR`;
       lucide.createIcons();
       initBookingDates();
       renderTimeSlots();
-      // Setup initial WhatsApp link
       updateContactButtons('INQUIRY', 'Upcoming', 'Consultation');
     });
   </script>
 </body>
 </html>
+```
